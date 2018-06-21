@@ -1,9 +1,14 @@
 Package: swdft
-Title: What the Package Does (one line, title case)
+Title: Sliding Window Discrete Fourier Transform (SWDFT)
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("Lee", "Richardson", email = "leerichardson@gmail.com", role = c("aut", "cre"))
+Description: This package implements the Sliding Window Discrete Fourier Transform (SWDFT). We 
+             also provide statistical and graphical tools related to the transform. 
 Depends: R (>= 3.4.1)
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Suggests: testthat,
+    fftwtools
+RoxygenNote: 6.0.1
+
