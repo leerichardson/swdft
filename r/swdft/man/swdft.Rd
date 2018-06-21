@@ -4,7 +4,7 @@
 \alias{swdft}
 \title{Sliding Window Discrete Fourier Transform (SWDFT)}
 \usage{
-swdft(x, n)
+swdft(x, n, type = "fftw", verbose = FALSE)
 }
 \arguments{
 \item{x}{real or complex vector}
