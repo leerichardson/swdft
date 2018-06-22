@@ -24,7 +24,7 @@
 #' Fr <- 4
 #' f <- (Fr * window_size) / N
 #' phase <- 1
-#' S <- 10n
+#' S <- 10
 #' L <- 10
 #' x <- local_signal(N=N, A=A, Fr=Fr, phase=phase, S=S, L=L)
 #'
@@ -47,7 +47,6 @@ fit_local_cosine <- function(b, lmin=8, full_estimation=FALSE) {
   grid_mat <- get_grid(N, n, lmin)
   params <- t(apply(X = grid_mat, MARGIN = 1, FUN = grid_search,
                     bk=bk, N=N, n=n, i=i, k=k, p_range=p_range))
-
   colnames(params) <- c("S", "L", "f", "A", "phase", "mse_1", "mse_2", "mse_C")
   ls_params <- params[which.min(params[, "mse_1"]), ]
 
@@ -61,7 +60,7 @@ fit_local_cosine <- function(b, lmin=8, full_estimation=FALSE) {
 
   # Return least squares parameters, fitted values, and the full estimation results
   if (!full_estimation) { params <- NULL }
-  return(list(ls_params=ls_params, fitted=fitted, full_estimation=params))
+  return(list(ls_params=c(ls_params, k=as.numeric(k)), fitted=fitted, full_estimation=params))
 }
 
 #' Compute possible start/length values of local signal
