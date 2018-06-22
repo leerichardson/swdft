@@ -4,12 +4,16 @@
 \alias{swdft}
 \title{Sliding Window Discrete Fourier Transform (SWDFT)}
 \usage{
-swdft(x, n, type = "fftw", verbose = FALSE)
+swdft(x, n, type = "fftw", normalize = 1)
 }
 \arguments{
 \item{x}{real or complex vector}
 
 \item{n}{window size}
+
+\item{normalize}{how to oscale the final SWDFT coefficients. Defaults
+to unnormalized (1), but many definitions include either
+(1 / n) or (1 / sqrt(n))}
 }
 \value{
 n x P array, where P = length(x) - n + 1
