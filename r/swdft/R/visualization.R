@@ -6,6 +6,10 @@
 #' @param use_fields logical that determines whether we use image or
 #' image.plot from the fields package. The key advantage of fields is
 #' that it automatically provides a legend
+#' @param zlim Custom z range
+#' @param xlab Custom x-label
+#' @param ylab Custom y-label
+#' @param title Custom title
 #'
 #' @export
 #'
@@ -51,4 +55,43 @@ plot_swdft <- function(a, type="Mod", use_fields=TRUE, zlim=NULL,
           main=title, cex.main = 1, zlim=zlim)
   }
 
+}
+
+#' Multivariate Time-Series plot of the SWDFT
+#'
+#' @param a 2D complex array of output of the 'swdft' function
+#' @param legend logical whether to include a legend
+#' @param title Custom title
+#' @param cex_leg size of the legend
+#' @param ylim Custom y-limits
+#' @param colors custom vector of colots
+#'
+#' @examples
+#' x <- rnorm(n = 100)
+#' a <- swdft(x, n = 2^5)
+#' plot_mvts(a)
+
+plot_mvts <- function(a, legend=FALSE, title="Title Left Blank", cex_leg=1, ylim=NULL, colors=NULL) {
+  m <- floor(n / 2) + 1
+  n <- 2 * m
+  P <- ncol(a)
+  N <- P + n - 1
+
+  if (class(a[1,1]) == "complex") { cat("Converting to Squared Modulus \n"); a <- Mod(a)^2 }
+  if (is.null(ylim)) { ylim = c(min(a) - .1, max(a) + .1) }
+  if (is.null(colors)) { colors <-randomcoloR::distinctColorPalette(k = n, altCol = TRUE) }
+
+  plot((n - 1):(N - 1), a[1, ], ylim = ylim, col = colors[1], type = "l",
+       xlim = c(-20, N - 1), xlab = "Window Position",
+       xaxt = 'n', ylab = "", main = title, cex.main = 1, lwd = 1.2, lty = 1)
+  axis(1) #, at = seq(from = n - 1, to = N - 1, by = 10))
+
+  for (i in 2:m) {
+    lines((n - 1):(N - 1), a[i, ], col = colors[i], lwd = 1.2, lty = i)
+  }
+
+  if (legend) {
+    legend(x=-20, y=ylim[2], paste0("Freq: ", 0:(m - 1)), col = colors,
+           cex = cex_leg, lwd = 2, lty = 1:m)
+  }
 }
