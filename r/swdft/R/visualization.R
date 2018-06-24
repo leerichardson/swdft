@@ -3,6 +3,7 @@
 #' @param a 2D complex array of output of the 'swdft' function
 #' @param type type of complex-number ourput. Either 'Re',
 #' 'Im', Arg', or 'Mod'. Defaults to 'Mod'
+#' @param take_log logical. whether to take the log before plotting
 #' @param use_fields logical that determines whether we use image or
 #' image.plot from the fields package. The key advantage of fields is
 #' that it automatically provides a legend
@@ -18,9 +19,10 @@
 #' a <- swdft(x, n = 2^5)
 #' plot_swdft(a)
 #'
-plot_swdft <- function(a, type="Mod", use_fields=TRUE, zlim=NULL,
-                    xlab="Window Position", ylab="Frequency (Cycles/Window)",
-                    title="SWDFT") {
+plot_swdft <- function(a, type="Mod", take_log=FALSE, log_thresh=.01,
+                       only_unique=FALSE, use_fields=TRUE, pad_array=FALSE,
+                       zlim=NULL, xlab="Window Position",
+                       ylab="Frequency (Cycles/Window)", title="SWDFT") {
   # Construct the correct complex-number output to plot
   if (class(a[1, 1]) != "complex") {
     warning("Expecting complex array from 'swdft'")
@@ -34,12 +36,30 @@ plot_swdft <- function(a, type="Mod", use_fields=TRUE, zlim=NULL,
     a <- Arg(a)
   }
 
+  # Optionally convert to log scale
+  if (take_log) {
+    a[which(a < log_thresh)] <- log_thresh
+    a <- log(a)
+  }
+
+  if (only_unique) {
+    m <- floor(nrow(a) / 2) + 1
+    a <- a[2:m, ]
+  }
+
   # Extract parameters used in plotting
   P <- ncol(a)
   n <- nrow(a)
   N <- P + n - 1
-  freqs <- 0:(n - 1)
-  windows <- (n - 1):(N - 1)
+  if (only_unique) { freqs <- 1:n } else { freqs <- 0:(n - 1) }
+  if (pad_array) {
+    apad <- matrix(data = NA, nrow = n, ncol = n - 1)
+    a <- cbind(apad, a)
+    windows <- 0:(N - 1)
+  } else {
+    windows <- (n - 1):(N - 1)
+  }
+
   grayscale <- grey(seq(0, 1, length = 256))
 
   # Time-frequency plot using either the fields image.plot function or
@@ -51,11 +71,13 @@ plot_swdft <- function(a, type="Mod", use_fields=TRUE, zlim=NULL,
                        main=title, cex.main = 1, zlim=zlim)
   } else {
     image(x=windows, y=freqs, z=t(a),
-          col=grayscale, xlab=xlab, ylab=ylab,
-          main=title, cex.main = 1, zlim=zlim)
+           col=grayscale, xlab=xlab, ylab=ylab,
+           main=title, cex.main = 1)
   }
 
 }
+
+
 
 #' Multivariate Time-Series plot of the SWDFT
 #'
@@ -70,10 +92,10 @@ plot_swdft <- function(a, type="Mod", use_fields=TRUE, zlim=NULL,
 #' x <- rnorm(n = 100)
 #' a <- swdft(x, n = 2^5)
 #' plot_mvts(a)
-
+#'
 plot_mvts <- function(a, legend=FALSE, title="Title Left Blank", cex_leg=1, ylim=NULL, colors=NULL) {
+  n <- nrow(a)
   m <- floor(n / 2) + 1
-  n <- 2 * m
   P <- ncol(a)
   N <- P + n - 1
 
