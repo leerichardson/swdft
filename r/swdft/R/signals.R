@@ -45,6 +45,7 @@ prou <- function(n) {
 cosine <- function(N, A=1, Fr=1, phase=0) {
   x <- 0:(N - 1)
   A * cos( ((2 * pi * Fr * x) / N) + phase )
+
 }
 
 #' Sine signal with adjustable parameters
@@ -58,5 +59,5 @@ cosine <- function(N, A=1, Fr=1, phase=0) {
 #'
 sine <- function(N, A=1, Fr=1, phase=0) {
   x <- 0:(N - 1)
-  A * sine( ((2 * pi * Fr * x) / N) + phase )
+  A * sin( ((2 * pi * Fr * x) / N) + phase )
 }

@@ -35,7 +35,7 @@ A <- 1
 Fr <- 4
 f <- (Fr * window_size) / N
 phase <- 1
-S <- 10n
+S <- 10
 L <- 10
 x <- local_signal(N=N, A=A, Fr=Fr, phase=phase, S=S, L=L)
 

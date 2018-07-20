@@ -9,9 +9,11 @@ swdft(x, n, type = "fftw", normalize = 1)
 \arguments{
 \item{x}{real or complex vector}
 
-\item{n}{window size}
+\item{n}{integer window size.}
 
-\item{normalize}{how to oscale the final SWDFT coefficients. Defaults
+\item{type}{algorithm to implement. defaults to "fftw"}
+
+\item{normalize}{how to scale SWDFT coefficients. Defaults
 to unnormalized (1), but many definitions include either
 (1 / n) or (1 / sqrt(n))}
 }
@@ -24,5 +26,6 @@ Sliding Window Discrete Fourier Transform (SWDFT)
 \examples{
 x <- rnorm(n = 100)
 a <- swdft(x, n = 2^5)
+
 
 }

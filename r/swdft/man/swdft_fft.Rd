@@ -2,7 +2,7 @@
 % Please edit documentation in R/swdft.R
 \name{swdft_fft}
 \alias{swdft_fft}
-\title{Sliding Window Discrete Fourier Transform using base R}
+\title{Sliding Window Discrete Fourier Transform with base R}
 \usage{
 swdft_fft(x, n)
 }
@@ -15,5 +15,5 @@ swdft_fft(x, n)
 n x P array, where P = length(x) - n + 1
 }
 \description{
-Sliding Window Discrete Fourier Transform using base R
+Sliding Window Discrete Fourier Transform with base R
 }

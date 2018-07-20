@@ -1,8 +1,9 @@
 #' Sliding Window Discrete Fourier Transform (SWDFT)
 #'
 #' @param x real or complex vector
-#' @param n window size
-#' @param normalize how to oscale the final SWDFT coefficients. Defaults
+#' @param n integer window size.
+#' @param type algorithm to implement. defaults to "fftw"
+#' @param normalize how to scale SWDFT coefficients. Defaults
 #' to unnormalized (1), but many definitions include either
 #' (1 / n) or (1 / sqrt(n))
 #'
@@ -13,6 +14,7 @@
 #' @examples
 #' x <- rnorm(n = 100)
 #' a <- swdft(x, n = 2^5)
+#'
 #'
 swdft <- function(x, n, type="fftw", normalize=1) {
   if (type == "fftw") {
@@ -28,7 +30,7 @@ swdft <- function(x, n, type="fftw", normalize=1) {
   return(a * normalize)
 }
 
-#' Sliding Window Discrete Fourier Transform using base R
+#' Sliding Window Discrete Fourier Transform with base R
 #'
 #' @param x real or complex vector
 #' @param n window size
@@ -41,7 +43,7 @@ swdft_fft <- function(x, n) {
   a <- array(data = NA, dim = c(n, P))
 
   for (p in n:N) {
-    a[, p - n + 1] <- fft(x[(p - n + 1):p])
+    a[, p - n + 1] <- stats::fft(x[(p - n + 1):p])
   }
 
   return(a)

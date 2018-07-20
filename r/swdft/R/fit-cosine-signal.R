@@ -47,8 +47,8 @@ fit_local_cosine <- function(b, lmin=8, full_estimation=FALSE) {
   grid_mat <- get_grid(N, n, lmin)
   params <- t(apply(X = grid_mat, MARGIN = 1, FUN = grid_search,
                     bk=bk, N=N, n=n, i=i, k=k, p_range=p_range))
-  colnames(params) <- c("S", "L", "f", "A", "phase", "mse_1", "mse_2", "mse_C")
-  ls_params <- params[which.min(params[, "mse_1"]), ]
+  colnames(params) <- c("S", "L", "f", "A", "phase", "mse_b", "mse_a", "mse_c")
+  ls_params <- params[which.min(params[, "mse_b"]), ]
 
   # Calculate the fitted values of the time-series using the SWDFT
   fitted <- swdft::local_signal(N=N,
@@ -114,9 +114,9 @@ grid_search <- function(SL, bk, N, n, p_range, k, i) {
   S <- SL[1]
   L <- SL[2]
 
-  optimal_freq <- optimize(f=compute_mse, interval=c(k - .5, k + .5),
-                           S=S, L=L, bk=bk, n=n, N=N,
-                           p_range=p_range, i=i, k=k)
+  optimal_freq <- stats::optimize(f=compute_mse, interval=c(k - .5, k + .5),
+                                   S=S, L=L, bk=bk, n=n, N=N,
+                                   p_range=p_range, i=i, k=k)
   optimal_params <- compute_mse(f=optimal_freq$minimum,
                                 S=S, L=L, bk=bk, n=n, N=N,
                                 p_range=p_range, i=i, k=k,
@@ -132,7 +132,8 @@ grid_search <- function(SL, bk, N, n, p_range, k, i) {
 #' @param S start of local signal
 #' @param L length of local signal
 #' @param bk frequency time-series to search
-#' @param N lenth of original time-series
+#' @param n window size
+#' @param N length of original time-series
 #' @param p_range range of window positions
 #' @param k fourier frequency we are searching
 #' @param i imaginary number
@@ -148,9 +149,9 @@ compute_mse <- function(f, S, L, bk, n, N, p_range, k, i, return_amp_phase=FALSE
   # Fit the linearized model to the real-part of the signal
   X_re <- cbind(Re(C1), Re(C2))
   Y_re <- Re(bk)
-  fit_re <- .lm.fit(x = X_re, y = Y_re)
-  beta1_re <- coefficients(fit_re)[1]
-  beta2_re <- coefficients(fit_re)[2]
+  fit_re <- stats::.lm.fit(x = X_re, y = Y_re)
+  beta1_re <- stats::coefficients(fit_re)[1]
+  beta2_re <- stats::coefficients(fit_re)[2]
   fitted_re <- (beta1_re * Re(C1)) + (beta2_re * Re(C2))
   mse_fitted_re <- sum( ( Re(bk) - fitted_re )^2 )
 

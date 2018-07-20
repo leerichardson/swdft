@@ -4,9 +4,11 @@
 \alias{plot_swdft}
 \title{Time-Frequency Plot of the SWDFT}
 \usage{
-plot_swdft(a, type = "Mod", use_fields = TRUE, zlim = NULL,
-  xlab = "Window Position", ylab = "Frequency (Cycles/Window)",
-  title = "SWDFT")
+plot_swdft(a, type = "Mod", take_log = FALSE, log_thresh = 0.01,
+  only_unique = FALSE, use_fields = TRUE, pad_array = FALSE,
+  zlim = NULL, xlab = "Window Position",
+  ylab = "Frequency (Cycles/Window)", title = "SWDFT",
+  custom_xaxis = NULL)
 }
 \arguments{
 \item{a}{2D complex array of output of the 'swdft' function}
@@ -14,9 +16,29 @@ plot_swdft(a, type = "Mod", use_fields = TRUE, zlim = NULL,
 \item{type}{type of complex-number ourput. Either 'Re',
 'Im', Arg', or 'Mod'. Defaults to 'Mod'}
 
+\item{take_log}{logical. whether to take the logarithm before plotting}
+
+\item{log_thresh}{number threshhold for logs (so we don't get log(.00001) = -13)}
+
+\item{only_unique}{logical. Only use the unique Fourier frequencies, not their aliases.}
+
 \item{use_fields}{logical that determines whether we use image or
 image.plot from the fields package. The key advantage of fields is
 that it automatically provides a legend}
+
+\item{pad_array}{logical. Pad the array with 0's so it aligns with
+plots of the original time-series}
+
+\item{zlim}{Custom z range}
+
+\item{xlab}{Custom x-label}
+
+\item{ylab}{Custom y-label}
+
+\item{title}{Custom title}
+
+\item{custom_xaxis}{Defaults to NULL. Otherwise, used to change the x-axis
+from "Window Position" to something more relavant, like "years"}
 }
 \description{
 Time-Frequency Plot of the SWDFT

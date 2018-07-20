@@ -15,7 +15,9 @@ compute_mse(f, S, L, bk, n, N, p_range, k, i, return_amp_phase = FALSE)
 
 \item{bk}{frequency time-series to search}
 
-\item{N}{lenth of original time-series}
+\item{n}{window size}
+
+\item{N}{length of original time-series}
 
 \item{p_range}{range of window positions}
 
