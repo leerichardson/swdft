@@ -1,7 +1,7 @@
 Package: swdft
 Title: Sliding Window Discrete Fourier Transform (SWDFT)
 Version: 0.0.1
-Authors@R: person("Lee", "Richardson", email = "leerichardson@gmail.com", role = c("aut", "cre"))
+Authors@R: person("Lee F. Richardson", email = "leerichardson2013@gmail.com", role = c("aut", "cre"))
 Description: Implements the Sliding Window Discrete Fourier Transform (SWDFT). We 
              also provide statistical and graphical tools for analyzing the output.
 Depends: R (>= 3.3.0)

@@ -1,8 +1,8 @@
 context("Estimation Local Cosine")
 
 test_that("Local cosine estimation procedure works", {
-  N <- 30
-  window_size <- 2^4
+  N <- 25
+  window_size <- 2^3
   A <- 1
   Fr <- 4
   f <- (Fr * window_size) / N

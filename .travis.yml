@@ -1,14 +1,12 @@
 language: r
 cache: packages
-before_install: cd r/swdft
-r_binary_packages:
-- devtools
-- roxygen2
-r_packages:
-- fftwtools 
-after_success:
-- Rscript -e 'devtools::install(); devtools::test()'
 addons:
   apt:
     packages:
       - libfftw3-dev # for installing fftwtools package 
+before_install: cd r/swdft
+r_binary_packages:
+- devtools
+- roxygen2
+after_success:
+- Rscript -e 'devtools::install(); devtools::test()'

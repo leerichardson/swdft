@@ -1,16 +1,19 @@
+devtools::load_all("/home/lee/Dropbox/swdft/r/swdft")
+
 # Dirichlet Kernel Weighting Explanation ---
 pdf("/home/lee/Dropbox/thesis/writing/swft_timeseries_paper/doc/images/dirichlet_kernel.pdf")
 
-  dir_n <- 32
-  dir_range <- seq(from = -(n / 2), to = n, length = 1000)
+  dir_n <- 16
+  n <- dir_n
+  dir_range <- seq(from = -(dir_n / 2), to = dir_n, length = 1000)
   dir_vals <- vector(mode = "numeric", length = length(dir_range))
   dir_vals_phaseshift <- vector(mode = "complex", length = length(dir_range))
 
   for (j in 1:length(dir_range)) {
     input_val <- (2 * pi * dir_range[j]) / n
     print(dir_range[j])
-    dir_vals[j] <- dirichlet_kernel(x = input_val, n = n, weight=FALSE)
-    dir_vals_phaseshift[j] <- dirichlet_kernel(x = input_val, n = n, weight=TRUE)
+    dir_vals[j] <- dirichlet_kernel(x = input_val, n = n, dw=FALSE)
+    dir_vals_phaseshift[j] <- dirichlet_kernel(x = input_val, n = n, dw=TRUE)
   }
 
   par(mfrow = c(2, 1))
