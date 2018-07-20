@@ -5,7 +5,6 @@ window_size <- 2^7
 a_star <- swdft::swdft(x = star, n = window_size, normalize = (1 / sqrt(window_size)))
 n <- nrow(a_star)
 P <- ncol(a_star)
-N <- P + n - 1
 
 png("/home/lee/Dropbox/thesis/writing/swft_timeseries_paper/doc/images/stars.png")
 
@@ -30,3 +29,16 @@ png("/home/lee/Dropbox/thesis/writing/swft_timeseries_paper/doc/images/stars.png
              title= "SWDFT of Variable Star Data")
 
 dev.off()
+
+
+# From chapter three of bloomfields
+N <- length(star)
+star_dft <- fft(star) * (1 / N)
+star_mod <- Mod(star_dft)^2
+freqs <- (0:(N - 1)) / N
+M <- floor(N / 2)
+star_df <- data.frame(freqs, star_mod)
+star_inds <- 2:M
+
+plot(star_df$freqs[star_inds], log(star_df$star_mod[star_inds]), pch=19, cex=.5)
+

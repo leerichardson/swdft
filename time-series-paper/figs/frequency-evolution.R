@@ -8,7 +8,7 @@ A <- 1
 S <- 0
 L <- N
 
-png("/home/lee/Dropbox/thesis/outputs/fourier/frequency_evolution.png", width = 720)
+png("/home/lee/Dropbox/thesis/writing/swft_timeseries_paper/doc/images/frequency_evolution.png", width = 720)
 
 Fr_seq <- seq(from=32, to=46.4, by=1.6)
 f_seq <- (n * Fr_seq) / N

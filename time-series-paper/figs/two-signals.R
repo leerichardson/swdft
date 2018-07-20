@@ -28,22 +28,22 @@ png("/home/lee/Dropbox/thesis/writing/swft_timeseries_paper/doc/images/two_signa
 
     layout(mat = matrix(data = 1:8, nrow = 4, ncol = 2,  byrow = FALSE))
 
-    plot(y1, pch = 19, cex = .8, ylim = c(-2, 2),
+    plot(y1, pch = 19, cex = 1, ylim = c(-2, 2),
        main = "Two Local Periodic Signals: No Overlap", xlab = "", ylab = "")
     lines(x1, col = "grey", lwd = 1.5)
     lines(x2, col = "black", lwd = 1.5)
-    swdft::plot_swdft
 
-    swdft::plot_swdft(a = b1, title = "SW-DFT of Signal 1", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
-    swdft::plot_swdft(a = b2, title = "SW-DFT of Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
-    swdft::plot_swdft(a = a1, title = "SW-DFT of Signal 1 + Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
+    swdft::plot_swdft(a = b1, title = "SWDFT of Signal 1", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
+    swdft::plot_swdft(a = b2, title = "SWDFT of Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
+    swdft::plot_swdft(a = a1, title = "SWDFT of Signal 1 + Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
 
-    plot(y2, pch = 19, cex = .8, ylim = c(-2, 2),
+    plot(y2, pch = 19, cex = 1, ylim = c(-2, 2),
        main = "Two Local Periodic Signals: Overlap", xlab = "", ylab = "")
     lines(x3, col = "grey", lwd = 1.5)
     lines(x4, col = "black", lwd = 1.5)
-    swdft::plot_swdft(a = b3, title = "SW-DFT of Signal 1", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
-    swdft::plot_swdft(a = b4, title = "SW-DFT of Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
-    swdft::plot_swdft(a = a2, title = "SW-DFT of Signal 1 + Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
+
+    swdft::plot_swdft(a = b3, title = "SWDFT of Signal 1", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
+    swdft::plot_swdft(a = b4, title = "SWDFT of Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
+    swdft::plot_swdft(a = a2, title = "SWDFT of Signal 1 + Signal 2", zlim= c(0, max(Mod(a1)^2)), use_fields = FALSE, ylab = "")
 
 dev.off()
