@@ -2,7 +2,7 @@
 The swdft R-package
 ===================
 
-The swdft package implements the Sliding Window Discrete Fourier Transform (SWDFT) and provides some statistical and graphical tools for analyzing the output.
+The swdft package implements the Sliding Window Discrete Fourier Transform (SWDFT) and provides some statistical and graphical tools for analyzing the output. The reference paper is available online at (<https://arxiv.org/abs/1807.07797>).
 
 Installation
 ------------
@@ -13,7 +13,7 @@ install.packages("swdft")
 
 # The development version is available on Github 
 # install.packages("devtools")
-devtools::install_github("leerichardson/swdft")
+devtools::install_github("leerichardson/swdft/r/swdft")
 ```
 
 Usage
