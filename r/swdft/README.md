@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-The swdft R-package
-===================
+Overview
+========
 
 The swdft package implements the Sliding Window Discrete Fourier Transform (SWDFT) and provides some statistical and graphical tools for analyzing the output. The reference paper is available online at (<https://arxiv.org/abs/1807.07797>).
 
@@ -8,7 +8,7 @@ Installation
 ------------
 
 ``` r
-# The swdft packages is available on CRAN
+# The swdft package is available on CRAN
 install.packages("swdft")
 
 # The development version is available on Github 
