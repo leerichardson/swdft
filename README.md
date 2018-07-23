@@ -9,7 +9,7 @@ This repository implements the Sliding Window Discrete Fourier Transform (SWDFT)
 ## Citation 
 ```text
 @article{richardson2018timeseries,
-  title={The Sliding Window Discrete Fourier Transform for Time Series},
+  title={The Sliding Window Discrete Fourier Transform},
   author={Richardson, Lee F and Eddy, William F},
   journal={arXiv preprint arXiv:1807.07797},
   year={2018}
