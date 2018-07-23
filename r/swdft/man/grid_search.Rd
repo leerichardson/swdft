@@ -7,11 +7,11 @@
 grid_search(SL, bk, N, n, p_range, k, i)
 }
 \arguments{
-\item{SL}{Vector of S and L paramers}
+\item{SL}{Vector of S and L parameters}
 
 \item{bk}{frequency time-series to search}
 
-\item{N}{lenth of original time-series}
+\item{N}{length of original time-series}
 
 \item{n}{window size}
 

@@ -13,7 +13,7 @@ plot_mvts(a, take_log = FALSE, log_thresh = 0.01, only_unique = FALSE,
 
 \item{take_log}{logical. whether to take the logarithm before plotting}
 
-\item{log_thresh}{number threshhold for logs (so we don't get log(.00001) = -13)}
+\item{log_thresh}{number threshold for logs (so we don't get log(.00001) = -13)}
 
 \item{only_unique}{logical. Only use the unique Fourier frequencies, not their aliases.}
 
@@ -25,14 +25,8 @@ plot_mvts(a, take_log = FALSE, log_thresh = 0.01, only_unique = FALSE,
 
 \item{ylim}{Custom y-limits}
 
-\item{colors}{custom vector of colots}
+\item{colors}{custom vector of colors}
 }
 \description{
 Multivariate Time-Series plot of the SWDFT
-}
-\examples{
-x <- rnorm(n = 100)
-a <- swdft(x, n = 2^5)
-plot_mvts(a)
-
 }

@@ -13,12 +13,12 @@ plot_swdft(a, type = "Mod", take_log = FALSE, log_thresh = 0.01,
 \arguments{
 \item{a}{2D complex array of output of the 'swdft' function}
 
-\item{type}{type of complex-number ourput. Either 'Re',
+\item{type}{type of complex-number output Either 'Re',
 'Im', Arg', or 'Mod'. Defaults to 'Mod'}
 
 \item{take_log}{logical. whether to take the logarithm before plotting}
 
-\item{log_thresh}{number threshhold for logs (so we don't get log(.00001) = -13)}
+\item{log_thresh}{number threshold for logs (so we don't get log(.00001) = -13)}
 
 \item{only_unique}{logical. Only use the unique Fourier frequencies, not their aliases.}
 
@@ -38,14 +38,14 @@ plots of the original time-series}
 \item{title}{Custom title}
 
 \item{custom_xaxis}{Defaults to NULL. Otherwise, used to change the x-axis
-from "Window Position" to something more relavant, like "years"}
+from "Window Position" to something more relevant, like "years"}
 }
 \description{
 Time-Frequency Plot of the SWDFT
 }
 \examples{
-x <- rnorm(n = 100)
-a <- swdft(x, n = 2^5)
+x <- rnorm(n = 40)
+a <- swdft(x, n = 2^3)
 plot_swdft(a)
 
 }

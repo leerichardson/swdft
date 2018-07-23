@@ -16,7 +16,7 @@ estimates for every grid position, defaults to false.}
 }
 \value{
 A list with three components
-\item{ls_params}{A named numeric vector with the 5 least squars parameter
+\item{ls_params}{A named numeric vector with the 5 least squares parameter
 estimates, mean squared error, mean squared error of the linear fit, mean squared
 error of fitting the mean, and the change in mse between the two}
 \item{fitted}{length N time-series with the fitted values corresponding to
@@ -29,8 +29,8 @@ Estimate parameters of a local cosine signal
 }
 \examples{
 # First generate a local periodic signal
-N <- 40
-window_size <- 2^4
+N <- 15
+window_size <- 2^3
 A <- 1
 Fr <- 4
 f <- (Fr * window_size) / N

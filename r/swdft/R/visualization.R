@@ -1,10 +1,10 @@
 #' Time-Frequency Plot of the SWDFT
 #'
 #' @param a 2D complex array of output of the 'swdft' function
-#' @param type type of complex-number ourput. Either 'Re',
+#' @param type type of complex-number output Either 'Re',
 #' 'Im', Arg', or 'Mod'. Defaults to 'Mod'
 #' @param take_log logical. whether to take the logarithm before plotting
-#' @param log_thresh number threshhold for logs (so we don't get log(.00001) = -13)
+#' @param log_thresh number threshold for logs (so we don't get log(.00001) = -13)
 #' @param only_unique logical. Only use the unique Fourier frequencies, not their aliases.
 #' @param pad_array logical. Pad the array with 0's so it aligns with
 #' plots of the original time-series
@@ -16,13 +16,13 @@
 #' @param ylab Custom y-label
 #' @param title Custom title
 #' @param custom_xaxis Defaults to NULL. Otherwise, used to change the x-axis
-#' from "Window Position" to something more relavant, like "years"
+#' from "Window Position" to something more relevant, like "years"
 #'
 #' @export
 #'
 #' @examples
-#' x <- rnorm(n = 100)
-#' a <- swdft(x, n = 2^5)
+#' x <- rnorm(n = 40)
+#' a <- swdft(x, n = 2^3)
 #' plot_swdft(a)
 #'
 plot_swdft <- function(a, type="Mod", take_log=FALSE, log_thresh=.01,
@@ -96,20 +96,13 @@ plot_swdft <- function(a, type="Mod", take_log=FALSE, log_thresh=.01,
 #'
 #' @param a 2D complex array of output of the 'swdft' function
 #' @param take_log logical. whether to take the logarithm before plotting
-#' @param log_thresh number threshhold for logs (so we don't get log(.00001) = -13)
+#' @param log_thresh number threshold for logs (so we don't get log(.00001) = -13)
 #' @param only_unique logical. Only use the unique Fourier frequencies, not their aliases.
 #' @param legend logical whether to include a legend
 #' @param title Custom title
 #' @param cex_leg size of the legend
 #' @param ylim Custom y-limits
-#' @param colors custom vector of colots
-#'
-#' @export
-#'
-#' @examples
-#' x <- rnorm(n = 100)
-#' a <- swdft(x, n = 2^5)
-#' plot_mvts(a)
+#' @param colors custom vector of colors
 #'
 plot_mvts <- function(a, take_log=FALSE, log_thresh=.01, only_unique=FALSE,
                       legend=FALSE, title="SWDFT Frequency Time-Series", cex_leg=1,

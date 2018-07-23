@@ -6,7 +6,7 @@
 #' estimates for every grid position, defaults to false.
 #'
 #' @return A list with three components
-#' \item{ls_params}{A named numeric vector with the 5 least squars parameter
+#' \item{ls_params}{A named numeric vector with the 5 least squares parameter
 #' estimates, mean squared error, mean squared error of the linear fit, mean squared
 #' error of fitting the mean, and the change in mse between the two}
 #' \item{fitted}{length N time-series with the fitted values corresponding to
@@ -18,8 +18,8 @@
 #'
 #' @examples
 #' # First generate a local periodic signal
-#' N <- 40
-#' window_size <- 2^4
+#' N <- 15
+#' window_size <- 2^3
 #' A <- 1
 #' Fr <- 4
 #' f <- (Fr * window_size) / N
@@ -102,9 +102,9 @@ coef_to_search <- function(b, n) {
 
 #' Estimate Parameters for all Start/Length Combinations of Local Signal
 #'
-#' @param SL Vector of S and L paramers
+#' @param SL Vector of S and L parameters
 #' @param bk frequency time-series to search
-#' @param N lenth of original time-series
+#' @param N length of original time-series
 #' @param n window size
 #' @param p_range range of window positions
 #' @param k fourier frequency we are searching
@@ -173,7 +173,7 @@ compute_mse <- function(f, S, L, bk, n, N, p_range, k, i, return_amp_phase=FALSE
 #'
 #' @param p window position
 #' @param n window size
-#' @param N lenth of original time-series
+#' @param N length of original time-series
 #' @param f frequency: number of cycles in length n window
 #' @param k fourier frequency we are searching
 #' @param S start of local signal
@@ -196,7 +196,7 @@ c1kp <- function(p, n, N, f, k, S, L, i) {
 #'
 #' @param p window position
 #' @param n window size
-#' @param N lenth of original time-series
+#' @param N length of original time-series
 #' @param f frequency: number of cycles in length n window
 #' @param k fourier frequency we are searching
 #' @param S start of local signal

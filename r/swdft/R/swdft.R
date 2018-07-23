@@ -12,8 +12,8 @@
 #' @export
 #'
 #' @examples
-#' x <- rnorm(n = 100)
-#' a <- swdft(x, n = 2^5)
+#' x <- rnorm(n = 20)
+#' a <- swdft(x, n = 2^3)
 #'
 #'
 swdft <- function(x, n, type="fftw", normalize=1) {
@@ -49,7 +49,7 @@ swdft_fft <- function(x, n) {
   return(a)
 }
 
-#' Sliding Window Discrete Fourier Transform using FFTW
+#' Sliding Window Discrete Fourier Transform using fftw
 #'
 #' @param x real or complex vector
 #' @param n window size

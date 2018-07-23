@@ -11,7 +11,7 @@ c2kp(p, n, N, f, k, S, L, i)
 
 \item{n}{window size}
 
-\item{N}{lenth of original time-series}
+\item{N}{length of original time-series}
 
 \item{f}{frequency: number of cycles in length n window}
 

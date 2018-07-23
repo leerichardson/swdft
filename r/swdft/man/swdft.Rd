@@ -24,8 +24,8 @@ n x P array, where P = length(x) - n + 1
 Sliding Window Discrete Fourier Transform (SWDFT)
 }
 \examples{
-x <- rnorm(n = 100)
-a <- swdft(x, n = 2^5)
+x <- rnorm(n = 20)
+a <- swdft(x, n = 2^3)
 
 
 }
