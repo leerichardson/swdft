@@ -6,19 +6,22 @@
 #' @param
 #'
 smooth_swdft <- function(a, ktype='daniell', m=2, num_convs=1) {
-  ## Verify that we have a real-valued a
-  browser()
+  n <- nrow(a)
+  P <- ncol(a)
+
+  ## If a is complex-valued, convert to using the squared modulus
+  if (is.complex(a)) { a <- Mod(a)^2 / n }
+
   ## Create the Kernel
   if ( ( ktype %in% c('daniell', 'modified.daniell') ) == FALSE) {
     stop("ktype must be either 'daniell' or 'modified.daniell'")
   }
 
   kern <- stats::kernel(coef=ktype, m=c(m, num_convs))
+  newm <- kern$m
 
   ## Pre-compute the FFT of the kernel used in the convolution
-  N <- nrow(a)
-  newm <- kern$m
-  weights <- c( kern[0:newm], rep_len(0, N - (2 * newm) - 1), kern[-newm:-1])
+  weights <- c( kern[0:newm], rep_len(0, n - (2 * newm) - 1), kern[-newm:-1])
   fft_weights <- fftwtools::fftw(data=weights)
 
   ## Apply the kernel smoothing across each window position

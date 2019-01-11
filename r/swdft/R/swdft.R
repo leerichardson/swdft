@@ -22,8 +22,8 @@
 #' x <- rnorm(n = 20)
 #' a <- swdft(x, n = 2^3)
 #'
-swdft <- function(x, n, type="fftw", pad=TRUE, taper='none', p=.1, output='complex',
-                  smooth=FALSE, ktype='daniell', m=2, num_convs=1) {
+swdft <- function(x, n, type="fftw", pad=TRUE, output='complex', taper='none',
+                  p=.1, ktype='daniell', m=2, num_convs=1) {
   ## Optionally pad the array x with 0's
   if (pad == TRUE) { x <- c(rep(0, n-1), x) }
 
@@ -43,12 +43,16 @@ swdft <- function(x, n, type="fftw", pad=TRUE, taper='none', p=.1, output='compl
     stop("Only works for type = 'fftw'")
   }
 
-  ## Optionally return a raw or smoother periodogram for each window position
-  if (smooth == TRUE) {
-    a <- swdft::smooth_swdft(a=Mod(a)^2, ktype=ktype, m=m, num_convs=num_convs)
+  ##  Optionally return complex-valued output, raw spectrogram, or smoothed spectrogram
+  if (output == 'complex') {
+    return(a)
+  } else if (output == 'sqmod') {
+    return(Mod(a)^2 / n)
+  } else if (output == 'smooth_sqmod') {
+    return( swdft::smooth_swdft(a=a, ktype=ktype, m=m, num_convs=num_convs) )
+  } else {
+    stop("output must be 'complex', 'sqmod', or 'smooth_sqmod'")
   }
-
-  return(a)
 }
 
 #' Sliding Window Discrete Fourier Transform with base R
