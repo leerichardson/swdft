@@ -9,6 +9,9 @@
 #' to 'none', can
 #' @param p Proportion to be tapered at each end of the series. Argument
 #' copied from the spec.taper function in the default stats package
+#' @param output type of output to return. Defaults to 'complex', but can
+#' also be 'pgram' for raw periodogram or 'smoothpgram' for an optionally
+#' smoother periodogram
 #'
 #'
 #' @return n x P array, where P = length(x) - n + 1
@@ -19,7 +22,8 @@
 #' x <- rnorm(n = 20)
 #' a <- swdft(x, n = 2^3)
 #'
-swdft <- function(x, n, type="fftw", pad=TRUE, taper='none', p=.1) {
+swdft <- function(x, n, type="fftw", pad=TRUE, taper='none', p=.1, output='complex',
+                  smooth=FALSE, ktype='daniell', m=2, num_convs=1) {
   ## Optionally pad the array x with 0's
   if (pad == TRUE) { x <- c(rep(0, n-1), x) }
 
@@ -37,6 +41,11 @@ swdft <- function(x, n, type="fftw", pad=TRUE, taper='none', p=.1) {
     a <- swdft_multitaper(x=x, n=n)
   } else {
     stop("Only works for type = 'fftw'")
+  }
+
+  ## Optionally return a raw or smoother periodogram for each window position
+  if (smooth == TRUE) {
+    a <- swdft::smooth_swdft(a=Mod(a)^2, ktype=ktype, m=m, num_convs=num_convs)
   }
 
   return(a)
@@ -61,7 +70,6 @@ swdft_fft <- function(x, n, taper) {
 
   return(a)
 }
-
 
 swdft_multitaper <- function(x, n) {
   N <- length(x)
