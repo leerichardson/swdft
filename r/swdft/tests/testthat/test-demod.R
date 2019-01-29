@@ -6,7 +6,7 @@ test_that("Demodulation Functions Work", {
   n <- 5
   x <- rnorm(n=N, mean=0, sd=1)
   a <- swdft::swdft(x=x, n=n, type="fftw") * (1 / n)
-  f0 <- 3 / n
+  f0 <- sample(x=1:3, size=1) / n
 
   ## Verify that the shifted moving average filter matches the SWDFT after shifting
   x_demod_match <- swdft::complex_demod(x=x, f0=f0, smooth='ma', order=n, match_swdft=TRUE)
@@ -18,7 +18,7 @@ test_that("Demodulation Functions Work", {
   x_demod <- swdft::complex_demod(x=x, f0=f0, smooth='ma', order=n)
   k_swdft_demod <- swdft::demod_swdft(a=a, k=round(f0 * n))
   expect_true(
-    all(round(x_demod$y_smooth[3:13], digits=4) == round(k_swdft_demod$k_demod[5:N], digits=4))
+    all.equal(target=round(k_swdft_demod$demod, digits=3), current=round(x_demod$y_smooth,digits=3))
   )
 
 })

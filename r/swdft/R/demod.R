@@ -65,11 +65,12 @@ demod_swdft <- function(a, k) {
   s <- ( (1:N) %% n) * k
   shift <- swdft::prou(n=n)^(-s)
   demod_k <- a[k + 1, ] * shift
+  demod_signal <- c(rep(NA, l), demod_k[n:N], rep(NA, l))
 
   ## Extract amplitude, phase, and fitted values
-  A_t <- 2 * Mod(demod_k)
-  Phi_t <- Arg(demod_k)
+  A_t <- 2 * Mod(demod_signal)
+  Phi_t <- Arg(demod_signal)
   fitted <- A_t * cos((2 * pi * (k / n) * t) + Phi_t)
 
-  return( list(fitted=fitted, k_demod=demod_k, amp=A_t, phase=Phi_t) )
+  return( list(fitted=fitted, demod=demod_signal, amp=A_t, phase=Phi_t) )
 }
