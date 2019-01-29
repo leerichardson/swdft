@@ -28,12 +28,12 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
     im_smooth <- swdft::moving_average(x=Im(y), order=order)
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
 
-    ## Optionally apply the shift factor that sets the demodulated
-    ## series equal to the SWDFT
+    ## Optiona: Apply shift factor that sets the demodulated series equal
+    ## to the SWDFT outputs
     if (match_swdft == TRUE) {
       l <- floor( order / 2)
       k <- f0 * n
-      s <- (t * k) - (l * k)
+      s <- (t - l) * k
       shift <- swdft::prou(n=order)^(s)
       y_smooth <- y_smooth * shift
     }
@@ -50,7 +50,7 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
   return( list(fitted=fitted, y=y, y_smooth=y_smooth, amp=A_t, phase=Phi_t) )
 }
 
-#' Demodulate a Fourier Frequency in the SWDFT
+#' Demodulate a Fourier Frequency with the SWDFT
 #'
 #' @param a swdft
 #' @param k frequency to demodulate
@@ -61,16 +61,15 @@ demod_swdft <- function(a, k) {
   l <- floor( n / 2 )
   t <- 0:(N-1)
 
-  s <- (t + 1) %% n
-  i <- complex(length.out=1, real=0, imaginary=1)
+  ## Shift the frequency band to math the demodulated series
+  s <- ( (1:N) %% n) * k
   shift <- swdft::prou(n=n)^(-s)
   demod_k <- a[k + 1, ] * shift
 
-  ## Extract the amplitude and phase, and fit the time-varying function
+  ## Extract amplitude, phase, and fitted values
   A_t <- 2 * Mod(demod_k)
   Phi_t <- Arg(demod_k)
   fitted <- A_t * cos((2 * pi * (k / n) * t) + Phi_t)
 
   return( list(fitted=fitted, k_demod=demod_k, amp=A_t, phase=Phi_t) )
 }
-
