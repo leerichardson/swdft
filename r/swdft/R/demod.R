@@ -28,8 +28,8 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
     im_smooth <- swdft::moving_average(x=Im(y), order=order)
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
 
-    ## Optiona: Apply shift factor that sets the demodulated series equal
-    ## to the SWDFT outputs
+    ## Optional shift factor that sets the demodulated series equal
+    ## to the SWDFT outputs. Used primarily for testing
     if (match_swdft == TRUE) {
       l <- floor( order / 2)
       k <- f0 * n
@@ -37,7 +37,6 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
       shift <- swdft::prou(n=order)^(s)
       y_smooth <- y_smooth * shift
     }
-
   } else {
     stop("smooth only accepts 'spline' for now")
   }
@@ -92,54 +91,52 @@ demod_swdft <- function(a, k, resmooth=FALSE, spar=.8) {
 #' @param n window size
 #' @param max_cycles maximum number of iterations
 #' @param debug
-#' @param prop_thresh
+#' @param thresh
 #'
-demod_signal <- function(x, n, max_cycles=5, order_prop=.02, debug=FALSE, prop_thresh=.02) {
+demod_signal <- function(x, n, max_cycles=5, order_prop=.02, debug=FALSE, thresh=.05) {
   ## Create an array to store the demodulations
   N <- length(x)
   demods <- array(data=NA_real_, dim=c(max_cycles, N))
   amps <- array(data=NA_real_, dim=c(max_cycles, N))
   phases <- array(data=NA_real_, dim=c(max_cycles, N))
   khats <- c()
+  total_fit <- rep(0, N)
 
+  ## Iteratively demodulate the signal until the stopping criteria is reached
   cycle <- 1
   while (cycle <= max_cycles) {
     ## Select the frequency that explains the maximum variance proportion
-    a <- swdft::swdft(x=x, n=n, taper='cosine') * (1 / n)
+    a <- swdft::swdft(x=x-total_fit, n=n, taper='cosine') * (1 / n)
     aprop <- swdft::swdft_to_props(a=a)
-    max_swdft <- max(Mod(a)^2)
-    cat("Max Val: ", max_swdft, " \n");
+    maxval <- max(Mod(a)^2)
+    cat("Max SqMod: ", maxval, " Max Prop: ", max(aprop, na.rm=TRUE), " \n");
 
-    if (max_swdft < prop_thresh) {
+    if (maxval < thresh) {
       cat("No more large components! \n")
-      break
+      break;
     }
 
+    ## Demodulate the maximum frequency and add to the total fit
     khat <- which(Mod(a) == max(Mod(a)), arr.ind=TRUE)[1,1]
+    khat_demod <- swdft::complex_demod(x=x-total_fit, f0=(khat-1)/n, smooth='ma', order=(N * order_prop))
+    total_fit <- total_fit + khat_demod$fitted
+    total_fit[is.na(total_fit)] <- 0
+
+    ## Store the parameters of this cycles demodulated signal
+    demods[cycle, ] <- khat_demod$fitted
+    amps[cycle, ] <- khat_demod$amp
+    phases[cycle, ] <- khat_demod$phase
     khats <- c(khats, khat)
 
-    ## Demodulate the maximum frequency
-    #khat_demod <- swdft::complex_demod(x=x, f0=(khat-1)/n, smooth='ma', order=(N * order_prop))
-    khat_demod <- swdft::complex_demod(x=x, f0=(khat-1)/n, smooth='spline', order=128)
-    fitted <- khat_demod$fitted
-
-    ## Optionally filter out the time-points where this demodulation is relevant
-    # fitted[khat_demod$amp < 1] <- 0
+    ## Optionally plot what the current fit looks like
     if (debug == TRUE) {
       par(mfrow=c(2, 1))
       plot(x=x, cex=.4, pch=19)
-      lines(fitted, lwd=2, col="red")
+      lines(total_fit, lwd=2, col="red")
       plot_swdft(a=a, col="other", hertz=TRUE, fs=1000, hertz_range=c(0, 100))
       par(mfrow=c(1, 1))
     }
 
-    demods[cycle, ] <- fitted
-    amps[cycle, ] <- khat_demod$amp
-    phases[cycle, ] <- khat_demod$phase
-
-    ## Remove the fitted values, update the cycle number, and repeat
-    x <- x - fitted
-    x[is.na(x)] <- 0
     cycle <- cycle + 1
   }
 
@@ -147,7 +144,8 @@ demod_signal <- function(x, n, max_cycles=5, order_prop=.02, debug=FALSE, prop_t
   return(list(demods=demods[return_rows, ],
               amps=amps[return_rows, ],
               phases=phases[return_rows, ],
-              khats=khats))
+              khats=khats,
+              total_fit=total_fit))
 }
 
 #' Convert the SWDFT to proportions of frequency
