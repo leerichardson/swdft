@@ -29,7 +29,7 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
 
     ## Optional shift factor that sets the demodulated series equal
-    ## to the SWDFT outputs. Used primarily for testing
+    ## to the SWDFT outputs. Primarily used for testing.
     if (match_swdft == TRUE) {
       l <- floor( order / 2)
       k <- f0 * n
@@ -37,6 +37,7 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
       shift <- swdft::prou(n=order)^(s)
       y_smooth <- y_smooth * shift
     }
+
   } else {
     stop("smooth only accepts 'spline' for now")
   }
@@ -90,29 +91,29 @@ demod_swdft <- function(a, k, resmooth=FALSE, spar=.8) {
 #' @param x signal to demodulate
 #' @param n window size
 #' @param max_cycles maximum number of iterations
-#' @param debug
 #' @param thresh
+#' @param debug
 #'
-demod_signal <- function(x, n, max_cycles=5, order_prop=.02, debug=FALSE, thresh=.05) {
-  ## Create an array to store the demodulations
+demod_signal <- function(x, n, max_cycles=5, order_prop=.02, thresh=.05, debug=FALSE) {
+  ## Create variables to store the outputs
   N <- length(x)
   demods <- array(data=NA_real_, dim=c(max_cycles, N))
   amps <- array(data=NA_real_, dim=c(max_cycles, N))
   phases <- array(data=NA_real_, dim=c(max_cycles, N))
-  khats <- c()
   total_fit <- rep(0, N)
+  khats <- c()
 
   ## Iteratively demodulate the signal until the stopping criteria is reached
   cycle <- 1
   while (cycle <= max_cycles) {
     ## Select the frequency that explains the maximum variance proportion
     a <- swdft::swdft(x=x-total_fit, n=n, taper='cosine') * (1 / n)
-    aprop <- swdft::swdft_to_props(a=a)
     maxval <- max(Mod(a)^2)
-    cat("Max SqMod: ", maxval, " Max Prop: ", max(aprop, na.rm=TRUE), " \n");
+    cat("Max SqMod: ", maxval, " \n");
 
+    ## Break if no more large components in the SWDFT exist
     if (maxval < thresh) {
-      cat("No more large components! \n")
+      cat("No large spectral components remain! \n")
       break;
     }
 
@@ -151,10 +152,11 @@ demod_signal <- function(x, n, max_cycles=5, order_prop=.02, debug=FALSE, thresh
 #' Convert the SWDFT to proportions of frequency
 #'
 #' @param a swdft
+#'
 swdft_to_props <- function(a) {
   n <- nrow(a)
   m <- floor(n / 2)
-  amod <- Mod(a)^2
+  if (class(a[1, 1]) == "complex") { amod <- Mod(a)^2 }
 
   return( apply(X=amod[2:m, ], MARGIN=2, FUN=function(x) x / sum(x)) )
 }
