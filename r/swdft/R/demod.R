@@ -2,28 +2,23 @@
 #'
 #' @param x vector (time-series)
 #' @param f0 Fixed frequency of the cosine function
-#' @param smooth Type of smoothing method. Only accepts 'spline'
-#' @param spar sparsity parameter in smooth.spline
+#' @param smooth Type of smoothing method. Either 'ma', 'double_ma', or 'butterworth'
 #' @param order moving average parameter if 'smooth' argument equals 'ma'
 #'
 #' @return length(x) demodulated time-series
 #'
 #' @references Bloomfield: Fourier Analysis of Time-Series, Chapter 7
 #'
-complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=FALSE) {
-  ## Demodulate the original time-series
+complex_demod <- function(x, f0, smooth="butterworth", order=5, freqcut=2*f0, match_swdft=FALSE) {
   N <- length(x)
   t <- 0:(N-1)
+
+  ## Demodulate the original time-series
   demod <- complex(real=cos(2 * pi * f0 * t), imaginary=-sin(2 * pi * f0 * t))
   y <- x * demod
 
   ## Smooth the demodulated series
-  if (smooth == "spline") {
-    re_smooth <- smooth.spline(x=Re(y), spar=spar)$y
-    im_smooth <- smooth.spline(x=Im(y), spar=spar)$y
-    y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
-
-  } else if (smooth == "ma") {
+  if (smooth == "ma") {
     re_smooth <- swdft::moving_average(x=Re(y), order=order)
     im_smooth <- swdft::moving_average(x=Im(y), order=order)
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
@@ -38,8 +33,19 @@ complex_demod <- function(x, f0, smooth="spline", spar=.8, order=5, match_swdft=
       y_smooth <- y_smooth * shift
     }
 
+  } else if (smooth == "double_ma") {
+    re_smooth <- swdft::moving_average(x=swdft::moving_average(x=Re(y), order=order), order=order)
+    im_smooth <- swdft::moving_average(x=swdft::moving_average(x=Im(y), order=order), order=order)
+    y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
+
+  } else if (smooth == "butterworth") {
+    filter <- signal::butter(n=order, W=freqcut, type="low")
+    re_smooth <- signal::filtfilt(filt=filter, Re(y))
+    im_smooth <- signal::filtfilt(filt=filter, Im(y))
+    y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
+
   } else {
-    stop("smooth only accepts 'spline' for now")
+    stop("smooth only accepts 'ma' and 'double_ma' for now")
   }
 
   ## Extract the amplitude and phase, and fit the time-varying function
@@ -86,20 +92,26 @@ demod_swdft <- function(a, k, resmooth=FALSE, spar=.8) {
   return( list(fitted=fitted, demod=demod_signal, amp=A_t, phase=Phi_t) )
 }
 
-#' Sequentially Demodulate a signal
+#' Matching Demodulation
 #'
-#' @param x signal to demodulate
-#' @param n window size
-#' @param max_cycles maximum number of iterations
+#' @param x
+#' @param n
+#' @param filter
+#' @param thresh
+#' @param max_cycles
+#' @param order_prop
+#' @param freqcut_scale
 #' @param thresh
 #' @param debug
 #'
-demod_signal <- function(x, n, max_cycles=5, order_prop=.02, thresh=.05, debug=FALSE) {
-  ## Create variables to store the outputs
+matching_demod <- function(x, n, filter="ma", thresh=.05, max_cycles=5,
+                           order_prop=.02, freqcut_scale=2,
+                           debug=FALSE) {
   N <- length(x)
   demods <- array(data=NA_real_, dim=c(max_cycles, N))
   amps <- array(data=NA_real_, dim=c(max_cycles, N))
   phases <- array(data=NA_real_, dim=c(max_cycles, N))
+  resids <- array(data=NA_real_, dim=c(max_cycles, N))
   total_fit <- rep(0, N)
   khats <- c()
 
@@ -117,16 +129,32 @@ demod_signal <- function(x, n, max_cycles=5, order_prop=.02, thresh=.05, debug=F
       break;
     }
 
-    ## Demodulate the maximum frequency and add to the total fit
+    ## Calculate the maximum frequency plus the residuals
     khat <- which(Mod(a) == max(Mod(a)), arr.ind=TRUE)[1,1]
-    khat_demod <- swdft::complex_demod(x=x-total_fit, f0=(khat-1)/n, smooth='ma', order=(N * order_prop))
+    f0 <- (khat-1) / n
+    cycle_resids <- x - total_fit
+
+    ## Smooth the demodulated series with optional different filters
+    if (filter == "ma") {
+      khat_demod <- swdft::complex_demod(x=cycle_resids, f0=f0, smooth='ma', order=N*order_prop)
+    } else if (filter == "butterworth") {
+      khat_demod <- swdft::complex_demod(x=cycle_resids, f0=f0, smooth='butterworth', freqcut=freqcut_scale*f0)
+    } else {
+      stop("filter must be 'ma' or 'butterworth'")
+    }
+
+    ## Update the total fitter values with the newly demodulated series
     total_fit <- total_fit + khat_demod$fitted
-    total_fit[is.na(total_fit)] <- 0
+    if (any(is.na(total_fit))) {
+      warning("adding zero's to total fit, likely because MA filter used")
+      total_fit[is.na(total_fit)] <- 0
+    }
 
     ## Store the parameters of this cycles demodulated signal
     demods[cycle, ] <- khat_demod$fitted
     amps[cycle, ] <- khat_demod$amp
     phases[cycle, ] <- khat_demod$phase
+    resids[cycle, ] <- cycle_resids
     khats <- c(khats, khat)
 
     ## Optionally plot what the current fit looks like
@@ -145,6 +173,7 @@ demod_signal <- function(x, n, max_cycles=5, order_prop=.02, thresh=.05, debug=F
   return(list(demods=demods[return_rows, ],
               amps=amps[return_rows, ],
               phases=phases[return_rows, ],
+              resids=resids[return_rows, ],
               khats=khats,
               total_fit=total_fit))
 }
@@ -159,4 +188,20 @@ swdft_to_props <- function(a) {
   if (class(a[1, 1]) == "complex") { amod <- Mod(a)^2 }
 
   return( apply(X=amod[2:m, ], MARGIN=2, FUN=function(x) x / sum(x)) )
+}
+
+#' Phase unwrapping
+#'
+#' @param p vector of phases fit by demodulation
+#'
+unwrap_phase <- function(p) {
+  pdiff <- diff(p, na.rm=TRUE)
+  pd_no_nas <- pdiff
+  pd_no_nas[is.na(pdiff)] <- 0
+
+  p_no_nas <- p
+  p_no_nas[is.na(p)] <- 0
+
+  p[] <- cumsum(c(p_no_nas[1], pd_no_nas - round(pd_no_nas)))
+  return(p)
 }
