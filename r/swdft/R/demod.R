@@ -118,8 +118,11 @@ matching_demod <- function(x, n, filter="ma", thresh=.05, max_cycles=5,
   ## Iteratively demodulate the signal until the stopping criteria is reached
   cycle <- 1
   while (cycle <= max_cycles) {
+    ## Calculate the residuals of this cycle
+    cycle_resids <- x - total_fit
+
     ## Select the frequency that explains the maximum variance proportion
-    a <- swdft::swdft(x=x-total_fit, n=n, taper='cosine') * (1 / n)
+    a <- swdft::swdft(x=cycle_resids, n=n, taper='cosine') * (1 / n)
     maxval <- max(Mod(a)^2)
     cat("Max SqMod: ", maxval, " \n");
 
@@ -132,13 +135,12 @@ matching_demod <- function(x, n, filter="ma", thresh=.05, max_cycles=5,
     ## Calculate the maximum frequency plus the residuals
     khat <- which(Mod(a) == max(Mod(a)), arr.ind=TRUE)[1,1]
     f0 <- (khat-1) / n
-    cycle_resids <- x - total_fit
 
     ## Smooth the demodulated series with optional different filters
     if (filter == "ma") {
-      khat_demod <- swdft::complex_demod(x=cycle_resids, f0=f0, smooth='ma', order=N*order_prop)
+      khat_demod <- swdft::complex_demod(x=x, f0=f0, smooth='ma', order=N*order_prop)
     } else if (filter == "butterworth") {
-      khat_demod <- swdft::complex_demod(x=cycle_resids, f0=f0, smooth='butterworth', freqcut=freqcut_scale*f0)
+      khat_demod <- swdft::complex_demod(x=x, f0=f0, smooth='butterworth', freqcut=freqcut_scale*f0)
     } else {
       stop("filter must be 'ma' or 'butterworth'")
     }
