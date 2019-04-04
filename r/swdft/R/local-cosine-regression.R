@@ -60,28 +60,23 @@ local_cosreg <- function(x, slf_type="grid", lmin=6, ptype="around_max", ftype="
 
          if (ftype == "optim") {
            SL <- get_sl(n=n, p=p-1)
+
+           ## Search for the global maxima of the frequency
            maxfreq <- nloptr::nloptr(x0=mean(freq_range), eval_f=lcr_loglik, lb=freq_range[1], ub=freq_range[2],
                                      x=x, S=SL[1], L=SL[2], ftype="negoptim",
-                                     opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=50))
-          maxfreq_local <- nloptr::nloptr(x0=maxfreq$solution, eval_f=lcr_loglik, lb=maxfreq$solution-.01, ub=maxfreq$solution+.01,
-                                          x=x, S=SL[1], L=SL[2], ftype="negoptim",
-                                          opts=list("algorithm"="NLOPT_LN_COBYLA", maxval=50))
-          loglik <- lcr_loglik(f=maxfreq_local$solution, x=x, S=SL[1], L=SL[2], ftype="full")
-          # freq_range_scale <- freq_range * n
-          # maxfp <- nloptr::nloptr(x0=mean(freq_range_scale), eval_f=eval_swdft, lb=freq_range_scale[1], ub=freq_range_scale[2],
-          #                           x=xwin, n=n, t=t, normalize=sqrt(2/n), ftype="negoptim",
-          #                           opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=100))
-          # maxfp <- stats::optimize(f=eval_swdft, interval=freq_range_scale, maximum=TRUE,x=xwin, n=n, t=t)
+                                     opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=100))
+          # ## Secondary local optimization around the global optimia (reccomended by Steven Johnson in NLOpt library)
+          # maxfreq_local <- nloptr::nloptr(x0=maxfreq$solution, eval_f=lcr_loglik, lb=maxfreq$solution-.01, ub=maxfreq$solution+.01,
+          #                                 x=x, S=SL[1], L=SL[2], ftype="negoptim",
+          #                                 opts=list("algorithm"="NLOPT_LN_COBYLA", maxval=50))
+          ## Get final analytic estimates
+          loglik <- lcr_loglik(f=maxfreq$solution, x=x, S=SL[1], L=SL[2], ftype="full")
           SL_grid[iter, "n"] <- n
-          SL_grid[iter, "f"] <- maxfreq_local$solution
+          SL_grid[iter, "f"] <- maxfreq$solution
           SL_grid[iter, "p"] <- p
           SL_grid[iter, "S"] <- SL[1]
           SL_grid[iter, "L"] <- SL[2]
           SL_grid[iter, 6:9] <- loglik[4:7]
-
-         } else if (ftype == "grid") {
-           freq_grid <- seq(freq_range_scale[1], freq_range_scale[2], length=5000)
-           vals <- sapply(X=freq_grid, FUN=eval_swdft, x=xwin, n=n, t=t, normalize=1, ftype="optim")
          }
       }
     }
@@ -189,7 +184,6 @@ get_sl <- function(n, p) {
 #' Extract amplitude and phase
 #'
 #' @param x
-#' @param n
 #' @param f
 #' @param S,
 #' @param L
@@ -201,10 +195,10 @@ get_aphi <- function(x, S, L, f) {
   U <- matrix(data=NA, nrow=N, ncol=2)
   U[, 1] <- swdft::cosine(N=N, Fr=f) * indicator
   U[, 2] <- swdft::sine(N=N, Fr=f) * indicator
-  beta <- lm(x ~ U - 1)
-  beta_complex <- complex(length.out=1, real=coefficients(beta)[1], imaginary=coefficients(beta)[2])
-  A <- Mod(beta_complex)
-  Phi <- Arg(beta_complex)
+  fitted <- lm(x ~ U - 1)
+  beta <- coefficients(fitted)
+  A <- sqrt( sum(beta^2) )
+  Phi <- atan2(y=-beta[2], x=beta[1])
 
   return( c(A, Phi) )
 }
