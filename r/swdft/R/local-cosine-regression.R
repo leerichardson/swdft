@@ -1,146 +1,70 @@
-#' Local Cosine Regression
+#' Local cosine regression
 #'
 #' @param x
-#' @param slf_type either "grid" or "window"
-#' @param ptype
-#' @param ktype
+#' @param lmin
+#' @param pwidth
+#' @param kwidth
+#' @param verbose
 #'
-local_cosreg <- function(x, slf_type="grid", lmin=6, ptype="around_max", ftype="optim",
-                         freq_grid_len=100, verbose=FALSE) {
+#' @return S3 object of class 'swdft_local_cosreg'
+#'
+local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
   N <- length(x)
 
-  ## Fit local cosine regression using a grid search of S and L
-  if (slf_type == "grid") {
-    ## Create the grid of all potential window positions
-    SL_grid <- swdft::get_grid(N=length(x), lmin=lmin)
+  ## Set up matrix to store parameters for each window size
+  grid_names <- c("n", "f", "p", "S", "L", "A", "Phi", "sigma", "loglik")
+  param_grid <- matrix(data=NA_real_, ncol=length(grid_names), nrow=length(lmin:N) * ((2*pwidth) + 1) )
+  colnames(param_grid) <- grid_names
 
-    ## Get the overall of frequenciees to consider
-    a <- swdft::swdft(x=x, n=floor(length(x)/2), taper='none') *  (2 / floor(length(x)/2))
-    freq_range <- swdft::get_freq_range(a=a)
-    freq_grid <- seq(from=freq_range[1], to=freq_range[2], length=freq_grid_len)
+  ## Extract the parameters for each possible window size
+  iter <- 0
+  for (n in lmin:N) {
+    if (verbose) { cat("Window Size: ", n, " \n") }
 
-    ## Compute the log likelihood at each window position
-    for (i in 1:nrow(SL_grid)) {
-      S <- SL_grid[i, 1]
-      L <- SL_grid[i, 2]
-      if (verbose == TRUE) { cat("S: ", SL_grid[i, 1], " L: ", SL_grid[i, 2], " \n") }
+    ## Compute the range of frequencies and window positions to search
+    a <- swdft::swdft(x=x, n=n)
+    freq_range <- swdft::get_freq_range(a=a, kwidth=kwidth)
+    phat <- which(Mod(a)^2 == max(Mod(a)^2), arr.ind=TRUE)[1,2]
+    prange <- swdft::get_p_range(phat=phat, n=n, N=N, pwidth=pwidth)
 
-      if (ftype == "grid") {
-        logliks <- sapply(X=freq_grid, FUN=lcr_loglik, x=x, S=S, L=L)
-        SL_grid[i, ] <- logliks[, which.max(logliks[7,])]
+    ## Optimize the frequuency selection for each window position
+    for (p in prange) {
+      iter <- iter + 1
+      SL <- get_sl(n=n, p=p-1)
 
-        ## Find the global optimum within the specified frequency range
-      } else if (ftype == "optim") {
-        maxfreq <- nloptr::nloptr(x0=mean(freq_range), eval_f=lcr_loglik, lb=freq_range[1], ub=freq_range[2],
-                                  x=x, S=S, L=L, ftype="negoptim",
-                                  opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=50))
-        SL_grid[i, ] <- lcr_loglik(f=maxfreq$solution, x=x, S=SL_grid[i, 1], L=SL_grid[i,2], ftype="full")
-      }
+      ## Search for the global maxima of the frequency
+      maxfreq <- nloptr::nloptr(x0=mean(freq_range), eval_f=lcr_loglik, lb=freq_range[1], ub=freq_range[2],
+                                 x=x, S=SL[1], L=SL[2], ftype="negoptim",
+                                 opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=100))
+      loglik <- lcr_loglik(f=maxfreq$solution, x=x, S=SL[1], L=SL[2], ftype="full")
+
+      ## Store parameter estimates for this window size
+      param_grid[iter, ] <- c(n, maxfreq$solution, p, SL[1], SL[2], loglik[4:7])
     }
-
-  ## Fit the model by optimizing over window size
-  } else if (slf_type == "window") {
-    grid_names <- c("n", "f", "p", "S", "L", "A", "Phi", "sigma", "loglik")
-    SL_grid <- data.frame(matrix(data=NA, nrow=(length(lmin:N))*10, ncol=length(grid_names)))
-    names(SL_grid) <- grid_names
-
-    iter <- 0
-    for (n in lmin:N) {
-      if (verbose == TRUE) { cat("Window Size: ", n, " \n") }
-      t <- 0:(n-1)
-      a <- swdft::swdft(x=x, n=n)
-      freq_range <- swdft::get_freq_range(a=a)
-
-      phat <- which(Mod(a)^2 == max(Mod(a)^2), arr.ind=TRUE)[1,2]
-      prange <- swdft::get_p_range(phat=phat, n=n, N=N)
-
-      for (p in prange) {
-        iter <- iter + 1
-        xwin <- x[(p-n+1):p]
-
-         if (ftype == "optim") {
-           SL <- get_sl(n=n, p=p-1)
-
-           ## Search for the global maxima of the frequency
-           maxfreq <- nloptr::nloptr(x0=mean(freq_range), eval_f=lcr_loglik, lb=freq_range[1], ub=freq_range[2],
-                                     x=x, S=SL[1], L=SL[2], ftype="negoptim",
-                                     opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=100))
-          # ## Secondary local optimization around the global optimia (reccomended by Steven Johnson in NLOpt library)
-          # maxfreq_local <- nloptr::nloptr(x0=maxfreq$solution, eval_f=lcr_loglik, lb=maxfreq$solution-.01, ub=maxfreq$solution+.01,
-          #                                 x=x, S=SL[1], L=SL[2], ftype="negoptim",
-          #                                 opts=list("algorithm"="NLOPT_LN_COBYLA", maxval=50))
-          ## Get final analytic estimates
-          loglik <- lcr_loglik(f=maxfreq$solution, x=x, S=SL[1], L=SL[2], ftype="full")
-          SL_grid[iter, "n"] <- n
-          SL_grid[iter, "f"] <- maxfreq$solution
-          SL_grid[iter, "p"] <- p
-          SL_grid[iter, "S"] <- SL[1]
-          SL_grid[iter, "L"] <- SL[2]
-          SL_grid[iter, 6:9] <- loglik[4:7]
-         }
-      }
-    }
-  } else {
-    stop("slf_type must be 'grid' or 'window'!")
   }
 
-  return(SL_grid)
-}
+  ## Return an S3 object w/ results
+  max_ind <- which.max(param_grid[, "loglik"])
+  fitted <- swdft::local_signal(N=N, A=param_grid[max_ind,"A"], Fr=param_grid[max_ind,"f"],
+                                phase=param_grid[max_ind,"Phi"], S=param_grid[max_ind,"S"],
+                                L=param_grid[max_ind, "L"])
 
-#' Evaluate the localized periodogram function
-#'
-#' @param f
-#' @param x
-#' @param n
-#' @param t
-#' @param normalize
-#' @param ftype
-#'
-eval_swdft <- function(f, x, n, t, normalize=sqrt(2/n), ftype="optim") {
-  twiddle <- swdft::prou(n=n)^(-f * t )
-  if (length(x) != length(twiddle)) { browser() }
-
-  val <- normalize * Mod( sum(x * twiddle) )^2
-
-  if (ftype=="optim") {
-    return(val)
-  } else if (ftype=="negoptim") {
-    return(-val)
-  }
-}
-
-#' Log Likelihood
-#'
-#' @param f
-#' @param x
-#' @param S
-#' @param L
-#' @param ftype
-#'
-lcr_loglik <- function(f, x, S, L, ftype="full") {
-  A_Phi <- swdft::get_aphi(x=x, S=S, L=L, f=f)
-  fitted <- swdft::local_signal(N=length(x), A=A_Phi[1], Fr=f, phase=A_Phi[2], S=S, L=L)
-  sigma <- swdft::get_sigma(x=x, fitted=fitted, N=length(x))
-  loglik <- swdft::get_loglik(x=x, fitted=fitted, sigma=sigma, N=length(x))
-
-  ## Optionally return either all the parameters or just the log likelihood
-  ## in case we are optimizing the function
-  if (ftype == "full") {
-    return(c(S, L, f, A_Phi[1], A_Phi[2], sigma, loglik))
-  } else if (ftype == "optim") {
-    return(loglik)
-  } else if (ftype == "negoptim") {
-    return(-loglik)
-  }
+  local_cosreg_obj <- structure(list(coefficients=param_grid[max_ind, c("f", "S", "L", "A", "Phi", "sigma")],
+                                     fitted=fitted,
+                                     residuals=x-fitted,
+                                     data=x,
+                                     window_params=param_grid[complete.cases(param_grid), ]),
+                                class=c("swdft_local_cosreg", "swdft_cosreg"))
+  return(local_cosreg_obj)
 }
 
 #' Get range of frequencies to search
 #'
 #' @param a swdft to search
-get_freq_range <- function(a, freq_width=1) {
+get_freq_range <- function(a, kwidth) {
   khat <- which(Mod(a)^2 == max(Mod(a)^2), arr.ind=TRUE)[1,1] - 1
-  fmin <- max(0, (khat - freq_width) / nrow(a))
-  fmax <- min((khat + freq_width) / nrow(a), .5)
+  fmin <- max(0, (khat - kwidth) / nrow(a))
+  fmax <- min((khat + kwidth) / nrow(a), .5)
 
   return( c(fmin, fmax) )
 }
@@ -153,7 +77,7 @@ get_freq_range <- function(a, freq_width=1) {
 #' @param prange
 #' @param type
 #'
-get_p_range <- function(phat, n, N, pwidth=5, type="around_max") {
+get_p_range <- function(phat, n, N, pwidth, type="around_max") {
   fullp <- 1:N
   minp <- min( fullp[(fullp - n + 1) > 0] )
   maxp <- max( fullp )
@@ -179,6 +103,31 @@ get_sl <- function(n, p) {
   L <- n
   S <- p - n + 1
   return( c(S, L) )
+}
+
+#' Log Likelihood
+#'
+#' @param f
+#' @param x
+#' @param S
+#' @param L
+#' @param ftype
+#'
+lcr_loglik <- function(f, x, S, L, ftype="full") {
+  A_Phi <- swdft::get_aphi(x=x, S=S, L=L, f=f)
+  fitted <- swdft::local_signal(N=length(x), A=A_Phi[1], Fr=f, phase=A_Phi[2], S=S, L=L)
+  sigma <- swdft::get_sigma(x=x, fitted=fitted, N=length(x))
+  loglik <- swdft::get_loglik(x=x, fitted=fitted, sigma=sigma, N=length(x))
+
+  ## Optionally return either all the parameters or just the log likelihood
+  ## in case we are optimizing the function
+  if (ftype == "full") {
+    return(c(S, L, f, A_Phi[1], A_Phi[2], sigma, loglik))
+  } else if (ftype == "optim") {
+    return(loglik)
+  } else if (ftype == "negoptim") {
+    return(-loglik)
+  }
 }
 
 #' Extract amplitude and phase
@@ -225,23 +174,24 @@ get_loglik <- function(x, fitted, sigma, N) {
   return( -N * log(sigma) + sum_val )
 }
 
-#' Compute possible start/length values of local signal
+#' Evaluate the localized periodogram function
 #'
-#' @param N Length of original signal
-#' @param n Window Size of SWDFT
-#' @param lmin Minimum signal to search for
-get_grid <- function(N, lmin) {
-  num_basis <- sum((N - lmin + 1):1)
-  grid_df <- data.frame(matrix(data=NA, nrow=num_basis, ncol=7))
-  names(grid_df) <- c("S", "L", "f", "A", "Phi", "sigma", "loglik")
+#' @param f
+#' @param x
+#' @param n
+#' @param t
+#' @param normalize
+#' @param ftype
+#'
+eval_swdft <- function(f, x, n, t, normalize=sqrt(2/n), ftype="optim") {
+  twiddle <- swdft::prou(n=n)^(-f * t )
+  if (length(x) != length(twiddle)) { browser() }
 
-  count <- 0
-  for (S in 0:(N - lmin)) {
-    for (L in (lmin:(N - S))) {
-      count <- count + 1
-      grid_df[count, 1:2] <- c(S, L)
-    }
+  val <- normalize * Mod( sum(x * twiddle) )^2
+
+  if (ftype=="optim") {
+    return(val)
+  } else if (ftype=="negoptim") {
+    return(-val)
   }
-
-  return(grid_df)
 }

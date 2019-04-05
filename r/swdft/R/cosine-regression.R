@@ -40,13 +40,10 @@ cosreg <- function(x, f) {
     iter <- iter + 1
   }
 
-  ## Compute the residuals
-  residuals <- fitted - x
-
   ## Compute the residuals and create a 'swdft_cosreg' object
   cosreg_obj <- structure(list(coefficients=coef_mat,
                                fitted=fitted,
-                               residuals=residuals,
+                               residuals=x-fitted,
                                data=x),
                           class="swdft_cosreg")
   return(cosreg_obj)
@@ -57,7 +54,7 @@ cosreg <- function(x, f) {
 #' @param x A swdft_cosreg object
 #'
 coefficients.swdft_cosreg <- function(x, ...) {
-  print(x$coefficients)
+  x$coefficients
 }
 
 #' Fitted values method for swdft_cosreg objects
@@ -65,7 +62,7 @@ coefficients.swdft_cosreg <- function(x, ...) {
 #' @param x A swdft_cosreg object
 #'
 fitted.swdft_cosreg <- function(x, ...) {
-  print(x$fitted)
+  x$fitted
 }
 
 #' Residuals method for swdft_cosreg objects
@@ -73,18 +70,18 @@ fitted.swdft_cosreg <- function(x, ...) {
 #' @param x A swdft_cosreg object
 #'
 residuals.swdft_cosreg <- function(x, ...) {
-  print(x$residuals)
+  x$residuals
 }
 
 #' Plot method for swdft_cosreg object
 #'
 #' @param x A swdft_cosreg object
-#' @param y not used by default
+#' @param y not used, but required by plot generic function
 #'
 plot.swdft_cosreg <- function(x, y, ...) {
   N <- length(x$data)
   t <- 0:(N-1)
-  plot(t, x$data, main="Fitted values for swdft_cosreg objects", pch=19)
+  plot(t, x$data, main="Fitted values for swdft_cosreg objects", xlab="", ylab="", pch=19)
   lines(t, x$data)
   lines(t, x$fitted, col="red", lty=2)
 }

@@ -7,8 +7,6 @@ test_that("Cosine regression works", {
   A <- 1
   Fr <- 2 / window_size
   phase <- 1
-  S <- 2
-  L <- 10
   signal <- swdft::cosine(N=N, A=A, Fr=Fr, phase=phase)
 
   ## Fit the cosine regression at the true frequency
@@ -33,14 +31,9 @@ test_that("Local cosine regression works for noiseless signal", {
   x <- swdft::local_signal(N=N, A=A, Fr=Fr, phase=phase, S=S, L=L)
 
   ## Fit local cosine regression
-  slgrid_fit_window <- swdft::local_cosreg(x=x, slf_type="window", ftype="optim", verbose=TRUE)
-  maxind <- which.max(slgrid_fit_window$loglik)
-  maxparams <- slgrid_fit_window[maxind, ]
-  maxparams
-  # ## Check that the parameters match for the noiseless case
-  # expect_true( round( bhat$ls_params["A"] - A, digits = 1)  == 0)
-  # expect_true( round( bhat$ls_params["S"] - S, digits = 1)  == 0)
-  # expect_true( round( bhat$ls_params["L"] - L, digits = 1)  == 0)
-  # expect_true( round( bhat$ls_params["f"] - f, digits = 1)  == 0)
-  # expect_true( round( bhat$ls_params["phase"] - phase, digits = 1)  == 0)
+  local_cosreg_fit <- swdft::local_cosreg(x=x, verbose=TRUE)
+
+  ## Verify we get the right fit in the noiseless case
+  expect_true(all(class(local_cosreg_fit) == c("swdft_local_cosreg", "swdft_cosreg")))
+  expect_true(all(round(residuals(local_cosreg_fit), digits=3) == 0))
 })
