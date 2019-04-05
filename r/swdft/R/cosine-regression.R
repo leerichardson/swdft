@@ -1,12 +1,11 @@
 #' Cosine regression
 #'
 #' @param x numeric. Signal
-#' @param f numeric. Single of vector of frequenies to fit. Defaults to NULL and
-#' in this case the maximum DFT coefficient in will be used.
+#' @param f numeric. Single of vector of frequenies to fit.
 #'
 #' @return S3 object of class 'swdft_cosreg'
 #'
-cosreg <- function(x, f=NULL) {
+cosreg <- function(x, f) {
   N <- length(x)
 
   ## Construct the design matrix for frequency f
@@ -56,20 +55,36 @@ cosreg <- function(x, f=NULL) {
 #' Coefficients method for swdft_cosreg objects
 #'
 #' @param x A swdft_cosreg object
+#'
 coefficients.swdft_cosreg <- function(x, ...) {
   print(x$coefficients)
 }
 
-#' Fitted values for swdft_cosreg objects
+#' Fitted values method for swdft_cosreg objects
 #'
 #' @param x A swdft_cosreg object
+#'
 fitted.swdft_cosreg <- function(x, ...) {
   print(x$fitted)
 }
 
-#' Residuals for swdft_cosreg objects
+#' Residuals method for swdft_cosreg objects
 #'
 #' @param x A swdft_cosreg object
+#'
 residuals.swdft_cosreg <- function(x, ...) {
   print(x$residuals)
+}
+
+#' Plot method for swdft_cosreg object
+#'
+#' @param x A swdft_cosreg object
+#' @param y not used by default
+#'
+plot.swdft_cosreg <- function(x, y, ...) {
+  N <- length(x$data)
+  t <- 0:(N-1)
+  plot(t, x$data, main="Fitted values for swdft_cosreg objects", pch=19)
+  lines(t, x$data)
+  lines(t, x$fitted, col="red", lty=2)
 }
