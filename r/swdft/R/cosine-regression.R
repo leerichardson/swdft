@@ -24,6 +24,7 @@ cosreg <- function(x, f=NULL) {
 
   ## Extract the amplitudes and phases
   coef_mat <- matrix(data=NA_real_, ncol=3, nrow=length(f))
+  colnames(coef_mat) <- c("A", "phi", "f")
   fitted <- vector(mode="numeric", length=N)
 
   iter <- 0
@@ -50,4 +51,25 @@ cosreg <- function(x, f=NULL) {
                                data=x),
                           class="swdft_cosreg")
   return(cosreg_obj)
+}
+
+#' Coefficients method for swdft_cosreg objects
+#'
+#' @param x A swdft_cosreg object
+coefficients.swdft_cosreg <- function(x, ...) {
+  print(x$coefficients)
+}
+
+#' Fitted values for swdft_cosreg objects
+#'
+#' @param x A swdft_cosreg object
+fitted.swdft_cosreg <- function(x, ...) {
+  print(x$fitted)
+}
+
+#' Residuals for swdft_cosreg objects
+#'
+#' @param x A swdft_cosreg object
+residuals.swdft_cosreg <- function(x, ...) {
+  print(x$residuals)
 }
