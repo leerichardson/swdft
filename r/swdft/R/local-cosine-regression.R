@@ -50,13 +50,38 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
                                 phase=param_grid[max_ind,"Phi"], S=param_grid[max_ind,"S"],
                                 L=param_grid[max_ind, "L"])
 
-  local_cosreg_obj <- structure(list(coefficients=param_grid[max_ind, c("f", "S", "L", "A", "Phi", "sigma")],
-                                     fitted=fitted,
-                                     residuals=x-fitted,
-                                     data=x,
-                                     window_params=param_grid[complete.cases(param_grid), ]),
-                                class=c("swdft_local_cosreg", "swdft_cosreg"))
+  local_cosreg_obj <- swdft::new_swdft_local_cosreg(coefficients=param_grid[max_ind, c("f", "S", "L", "A", "Phi", "sigma")],
+                                                    fitted=fitted, residuals=x-fitted, data=x,
+                                                    window_params=param_grid[complete.cases(param_grid),])
+
   return(local_cosreg_obj)
+}
+
+#' Constructor function for class 'swdft_local_cosreg'
+#'
+#' @param coefficients matrix of coefficients for cosine regression model
+#' @param fitted fitted values of cosine regression model
+#' @param residuals residuals of cosine regression model
+#' @param data original signal used to fit cosine regression
+#' @param
+#'
+#' @return list with the following elements
+#' \itemize{
+#'   \item coefficients. A matrix of parameters, the three columns are: 1. amplitude 2. phase, and 3. frequency.
+#'   There is only more that one row used when multiple frequencies are fit sequentially.
+#'   \item fitted. fitted values of cosine regression model
+#'   \item residuals. residuals of cosine regression model
+#'   \item data. original signal used to fit cosine regression
+#'   \item window_params. data frame of fitted coefficients for each window position
+#' }
+#'
+new_swdft_local_cosreg <- function(coefficients, fitted, residuals, data, window_params) {
+  structure(list(coefficients=coefficients,
+                 fitted=fitted,
+                 residuals=residuals,
+                 data=data,
+                 window_params=window_params),
+            class=c("swdft_local_cosreg", "swdft_mod"))
 }
 
 #' Get range of frequencies to search

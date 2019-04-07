@@ -3,7 +3,7 @@
 #' @param x numeric. Signal
 #' @param f numeric. Single of vector of frequenies to fit.
 #'
-#' @return S3 object of class 'swdft_cosreg'
+#' @return S3 object of class 'swdft_mod'
 #'
 cosreg <- function(x, f) {
   N <- length(x)
@@ -40,20 +40,40 @@ cosreg <- function(x, f) {
     iter <- iter + 1
   }
 
-  ## Compute the residuals and create a 'swdft_cosreg' object
-  cosreg_obj <- structure(list(coefficients=coef_mat,
-                               fitted=fitted,
-                               residuals=x-fitted,
-                               data=x),
-                          class="swdft_cosreg")
+  ## Return an S3 'swdft_cosreg' object w/ results
+  cosreg_obj <- swdft::new_swdft_cosreg(coefficients=coef_mat, fitted=fitted, residuals=x-fitted, data=x)
   return(cosreg_obj)
+}
+
+#' Constructor function for class swdft_mod
+#'
+#' @param coefficients matrix of coefficients for cosine regression model
+#' @param fitted fitted values of cosine regression model
+#' @param residuals residuals of cosine regression model
+#' @param data original signal used to fit cosine regression
+#'
+#' @return list with the following elements
+#' \itemize{
+#'   \item coefficients. A matrix of parameters, the three columns are: 1. amplitude 2. phase, and 3. frequency.
+#'   There is only more that one row used when multiple frequencies are fit sequentially.
+#'   \item fitted. fitted values of cosine regression model
+#'   \item residuals. residuals of cosine regression model
+#'   \item data. original signal used to fit cosine regression
+#' }
+#'
+new_swdft_cosreg <- function(coefficients, fitted, residuals, data) {
+  structure(list(coefficients=coefficients,
+                 fitted=fitted,
+                 residuals=residuals,
+                 data=data),
+            class=c("swdft_cosreg", "swdft_mod"))
 }
 
 #' Coefficients method for swdft_cosreg objects
 #'
 #' @param x A swdft_cosreg object
 #'
-coefficients.swdft_cosreg <- function(x, ...) {
+coefficients.swdft_mod <- function(x, ...) {
   x$coefficients
 }
 
@@ -61,7 +81,7 @@ coefficients.swdft_cosreg <- function(x, ...) {
 #'
 #' @param x A swdft_cosreg object
 #'
-fitted.swdft_cosreg <- function(x, ...) {
+fitted.swdft_mod <- function(x, ...) {
   x$fitted
 }
 
@@ -69,7 +89,7 @@ fitted.swdft_cosreg <- function(x, ...) {
 #'
 #' @param x A swdft_cosreg object
 #'
-residuals.swdft_cosreg <- function(x, ...) {
+residuals.swdft_mod <- function(x, ...) {
   x$residuals
 }
 
@@ -78,10 +98,10 @@ residuals.swdft_cosreg <- function(x, ...) {
 #' @param x A swdft_cosreg object
 #' @param y not used, but required by plot generic function
 #'
-plot.swdft_cosreg <- function(x, y, ...) {
+plot.swdft_mod <- function(x, y, ...) {
   N <- length(x$data)
   t <- 0:(N-1)
-  plot(t, x$data, main="Fitted values for swdft_cosreg objects", xlab="", ylab="", pch=19)
+  plot(t, x$data, main="Fitted values for swdft_mod objects", xlab="", ylab="", pch=19)
   lines(t, x$data)
   lines(t, x$fitted, col="red", lty=2)
 }
