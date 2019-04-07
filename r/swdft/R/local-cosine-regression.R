@@ -1,10 +1,10 @@
 #' Local cosine regression
 #'
-#' @param x
-#' @param lmin
-#' @param pwidth
-#' @param kwidth
-#' @param verbose
+#' @param x numeric signal to apply local cosine regression on
+#' @param lmin integer. minimum signal length (L parameter) to search
+#' @param pwidth integer. the range of window positions to search for each window size
+#' @param kwidth integer. the width of frequencies to search
+#' @param verbose logical. whether or not to print intermediate results
 #'
 #' @return S3 object of class 'swdft_local_cosreg'
 #'
@@ -36,6 +36,7 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
       maxfreq <- nloptr::nloptr(x0=mean(freq_range), eval_f=lcr_loglik, lb=freq_range[1], ub=freq_range[2],
                                  x=x, S=SL[1], L=SL[2], ftype="negoptim",
                                  opts=list("algorithm"="NLOPT_GN_DIRECT_L", "maxeval"=100))
+
       loglik <- lcr_loglik(f=maxfreq$solution, x=x, S=SL[1], L=SL[2], ftype="full")
 
       ## Store parameter estimates for this window size
@@ -60,22 +61,28 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
 
 #' Get range of frequencies to search
 #'
-#' @param a swdft to search
+#' @param a 2D complex-valued array. The SWDFT to search
+#' @param kwidth integer. the width of frequencies to search
+#'
 get_freq_range <- function(a, kwidth) {
-  khat <- which(Mod(a)^2 == max(Mod(a)^2), arr.ind=TRUE)[1,1] - 1
+  maxk <- floor(nrow(a) / 2) + 1
+
+  khat <- which(Mod(a[1:maxk,])^2 == max(Mod(a[1:maxk,])^2), arr.ind=TRUE)[1,1] - 1
   fmin <- max(0, (khat - kwidth) / nrow(a))
   fmax <- min((khat + kwidth) / nrow(a), .5)
+
+  if (fmax < fmin) { stop("fmax greater than fmin") }
 
   return( c(fmin, fmax) )
 }
 
 #' Get range of P's to search
 #'
-#' @param phat
-#' @param n
-#' @param N
-#' @param prange
-#' @param type
+#' @param phat integer. Window position with largest SWDFT coefficient
+#' @param n integer. window size
+#' @param N integer. Signal length
+#' @param pwidth integer. the range of window positions to search for each window size
+#' @param type character. either 'around max' or 'fullp'.
 #'
 get_p_range <- function(phat, n, N, pwidth, type="around_max") {
   fullp <- 1:N
@@ -174,24 +181,24 @@ get_loglik <- function(x, fitted, sigma, N) {
   return( -N * log(sigma) + sum_val )
 }
 
-#' Evaluate the localized periodogram function
+#' #' Evaluate the localized periodogram function
+#' #'
+#' #' @param f
+#' #' @param x
+#' #' @param n
+#' #' @param t
+#' #' @param normalize
+#' #' @param ftype
+#' #'
+#' eval_swdft <- function(f, x, n, t, normalize=sqrt(2/n), ftype="optim") {
+#'   twiddle <- swdft::prou(n=n)^(-f * t )
+#'   if (length(x) != length(twiddle)) { browser() }
 #'
-#' @param f
-#' @param x
-#' @param n
-#' @param t
-#' @param normalize
-#' @param ftype
+#'   val <- normalize * Mod( sum(x * twiddle) )^2
 #'
-eval_swdft <- function(f, x, n, t, normalize=sqrt(2/n), ftype="optim") {
-  twiddle <- swdft::prou(n=n)^(-f * t )
-  if (length(x) != length(twiddle)) { browser() }
-
-  val <- normalize * Mod( sum(x * twiddle) )^2
-
-  if (ftype=="optim") {
-    return(val)
-  } else if (ftype=="negoptim") {
-    return(-val)
-  }
-}
+#'   if (ftype=="optim") {
+#'     return(val)
+#'   } else if (ftype=="negoptim") {
+#'     return(-val)
+#'   }
+#' }
