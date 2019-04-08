@@ -1,10 +1,10 @@
-#' Smooth the spectrogram
+#' Smooth the SWDFT coefficients
 #'
-#' @param a real or complex-valued swdft. If real-valued. this is the squared modlus. If
-#' complex-valued, then all of the imaginary components must be 0
-#' @param ktype
-#' @param m
-#' @param num_convs
+#' @param a real or complex-valued swdft. If real-valued, then we assume it's the squared
+#' modulues already. If it's complex valued, we convert to the squared modulus.
+#' @param ktype either 'daniell' or 'modified.daniell'
+#' @param m kernel width from stats::kernel
+#' @param num_convs num_convs from stats::kernel
 #'
 #' @return Smooth squared modulues SWDFT coefficients
 #'
