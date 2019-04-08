@@ -1,9 +1,12 @@
-#' Smooth the Spectrogram
+#' Smooth the spectrogram
 #'
 #' @param a real or complex-valued swdft. If real-valued. this is the squared modlus. If
 #' complex-valued, then all of the imaginary components must be 0
-#' @param kernel
-#' @param
+#' @param ktype
+#' @param m
+#' @param num_convs
+#'
+#' @return Smooth squared modulues SWDFT coefficients
 #'
 smooth_swdft <- function(a, ktype='daniell', m=2, num_convs=1) {
   n <- nrow(a)
@@ -30,10 +33,12 @@ smooth_swdft <- function(a, ktype='daniell', m=2, num_convs=1) {
   return(asmooth)
 }
 
-#' Compute the
+#' Smooth SWDFT coefficients with a convolution
 #'
 #' @param a real-valued length n periodogram
 #' @param fft_weight optionally specify the pre-computed FFT of the weights
+#'
+#' @return smoothed coefficients
 #'
 smooth_pgram <- function(a, fft_weight=NULL) {
   Re( fftwtools::fftw(data = fftwtools::fftw(data=a) * fft_weight, inverse=1) / length(a) )
