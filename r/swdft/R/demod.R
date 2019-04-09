@@ -136,7 +136,16 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
   while (cycle <= max_cycles) {
     ## Select the frequency that corresponds to the largest SWDFT frequency
     cycle_resids <- x - fitted
-    a <- swdft(x=cycle_resids, n=n, taper_type='cosine')$a * (1 / n)
+
+    ## Take the SWDFT based on whether we are debugging or not
+    if (debug == TRUE) {
+      a_debug <- swdft(x=cycle_resids, n=n, taper_type='cosine')
+      a <- a_debug$a * (1 / n)
+    } else {
+      a <- swdft(x=cycle_resids, n=n, taper_type='cosine')$a * (1 / n)
+    }
+
+    ## Get the largest SWDFT coefficient
     maxval <- max(Mod(a)^2)
     maxvals <- c(maxvals, maxval)
     if (debug == TRUE) { cat("Max SqMod: ", maxval, "in iteration ", cycle, " \n") }
@@ -184,7 +193,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
       graphics::par(mfrow=c(2, 1))
       graphics::plot(x=x, cex=.4, pch=19)
       graphics::lines(fitted, lwd=2, col="red")
-      plot(a=a, freq_type="angular", col="tim.colors")
+      plot(x=a_debug, freq_type="angular", col="tim.colors")
       graphics::par(mfrow=c(1, 1))
     }
   }
