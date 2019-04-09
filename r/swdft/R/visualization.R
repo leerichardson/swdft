@@ -1,144 +1,126 @@
-#' Time-Frequency Plot of the SWDFT
+#' Plot method for 'swdft' object
 #'
-#' @param a 2D complex array of output of the 'swdft' function
-#' @param type type of complex-number output Either 'Re',
-#' 'Im', Arg', or 'Mod'. Defaults to 'Mod'
-#' @param take_log logical. whether to take the logarithm before plotting
-#' @param log_thresh number threshold for logs (so we don't get log(.00001) = -13)
-#' @param only_unique logical. Only use the unique Fourier frequencies, not their aliases.
-#' @param pad_array logical. Pad the array with 0's so it aligns with
-#' plots of the original time-series
-#' @param use_fields logical that determines whether we use image or
-#' image.plot from the fields package. The key advantage of fields is
-#' that it automatically provides a legend
+#' @param x Object of class 'swdft'. If x$a is complex-valued, it is converted to the squared
+#' modulus. If x$a is real-valued, then we assume that it represents the squared
+#' @param y not used, but required by plot generic function
+#' @param freq_type Specify how to display the frequency axis. Either 'cycles' (default), 'angular', or 'hertz'
+#' @param fs sample rate. Used if freq_type='hertz'
+#' @param hertz_range integer vector, given by (low, high). Specifies the range of hertz to display and
+#' is only used when freq_type='hertz'
+#' @param take_log logical. Whether to take the log before plotting
+#' @param log_thresh numeric. Threshold for smallest possible value. Defaults to .000001, and is
+#' used to keep plots from displaying of ~ -40.
+#' @param use_fields logical. Determines whether we use image.plot from the fields package, or 'image'
+#' from the graphics package. The advantage of image.plot is that we get a color scale, so the default is TRUE
+#' @param scale_shrink Proportion between 0 and 1 to shrink the scale
 #' @param zlim Custom z range
 #' @param xlab Custom x-label
 #' @param ylab Custom y-label
 #' @param title Custom title
+#' @param cex_main how large to make the title
+#' @param cex_lab how large to make the labels
 #' @param custom_xaxis Defaults to NULL. Otherwise, used to change the x-axis
-#' from "Window Position" to something more relevant, like "years"
+#' @param custom_yaxis Defaults to NULL. Otherwise, used to change the y-axis
+#' @param col defauts to grayscale, can also be 'tim.colors' from fields package
+#' @param display logical. Defaults to TRUE, only used for testing purposes, so it should always be TRUE.
 #'
-#' @export
+#' @return NULL
 #'
-#' @examples
-#' x <- rnorm(n = 40)
-#' a <- swdft(x, n = 2^3)
-#' plot_swdft(a)
-#'
-plot_swdft <- function(a, type="Mod", take_log=FALSE, log_thresh=.01,
-                       only_unique=FALSE, use_fields=TRUE, pad_array=FALSE,
-                       zlim=NULL, xlab="Window Position",
-                       ylab="Frequency (Cycles/Window)", title="SWDFT",
-                       custom_xaxis=NULL) {
-  # Extract the original SWDFT parameters
-  P <- ncol(a)
+plot.swdft <- function(x, y=NULL, freq_type="cycles", fs=NULL, hertz_range=NULL,
+                       take_log=FALSE, log_thresh=.00001, use_fields=TRUE, scale_shrink=.9,
+                       zlim=NULL, xlab="Window Position", ylab="Frequency (Cycles/Window)", title="SWDFT",
+                       cex_main=1, cex_lab=1, cex_axis=1, custom_xaxis=NULL, custom_yaxis=NULL,
+                       col="grayscale", display=TRUE) {
+  a <- x$a
   n <- nrow(a)
-  N <- P + n - 1
+  P <- ncol(a)
 
-  # Construct the correct complex-number output to plot
-  if (class(a[1, 1]) != "complex") {
-    warning("Expecting complex array from 'swdft'")
-  } else if (type == 'Mod') {
-    a <- Mod(a)^2
-  } else if (type == "Re") {
-    a <- Re(a)
-  } else if (type == "Im") {
-    a <- Im(a)
-  } else if (type == "Arg") {
-    a <- Arg(a)
-  }
+  ## If passed the complex-valued SWDFT, convert to the squared modulus
+  if (class(a[1, 1]) == "complex") { a <- Mod(a)^2 }
 
-  # Optionally convert to log scale
-  if (take_log) {
-    a[which(a < log_thresh)] <- log_thresh
-    a <- log(a)
-  }
+  ## Optionally take the logarithm of the coefficients
+  if (take_log) { a[which(a < log_thresh)] <- log_thresh; a <- log(a) }
 
-  if (only_unique) {
-    m <- floor(n / 2) + 1
-    a <- a[2:m, ]
-    freqs <- 1:(m - 1)
+  ## Optionally set a custom x or y axis. If none, set as the defaults
+  if ( is.null(custom_xaxis) ) {
+    windows <- 0:(P-1)
   } else {
-    freqs <- 0:(n - 1)
-  }
-
-  # Extract parameters used in plotting
-  if (pad_array) {
-    apad <- matrix(data = NA, nrow = nrow(a), ncol = n - 1)
-    a <- cbind(apad, a)
-    windows <- 0:(N - 1)
-  } else {
-    windows <- (n - 1):(N - 1)
-  }
-
-  # Custom X-Axis (used to plot years on the x-axis for time-series)
-  if (!(is.null(custom_xaxis))) {
     windows <- custom_xaxis
   }
 
-  grayscale <- grDevices::grey(seq(1, 0, length = 256))
-
-  # Time-frequency plot using either the fields image.plot function or
-  # base R's image function. T
-  if (requireNamespace("fields", quietly = TRUE) & use_fields == TRUE) {
-    # If fields package is available, use 'image.plot' to add a legend
-    fields::image.plot(x=windows, y=freqs, z=t(a),
-                       col=grayscale, xlab=xlab, ylab=ylab,
-                       main=title, cex.main = 1, zlim=zlim)
+  if ( is.null(custom_yaxis) ) {
+    freqs <- 0:(n-1)
   } else {
-    graphics::image(x=windows, y=freqs, z=t(a),
-                     col=grayscale, xlab=xlab, ylab=ylab,
-                     main=title, cex.main = 1)
+    freqs <- custom_yaxis
+  }
+
+  ## Optionally specify the frequency output
+  if (freq_type == "hertz") {
+    if (is.null(fs)) { stop("If plotting in Hertz, must specify the sampling rate parameter 'fs'") }
+    if (ylab == "Frequency (Cycles/Window)") { ylab <- "Frequency (Hz)" }
+
+    ## Convert the Fourier Frequencies into Hertz based on the window size
+    hertz <- (0:(n - 1)) * (fs / n)
+
+    ## Optonally specify a frequency band in Hertz
+    if (is.null(hertz_range)) {
+      freqs <- hertz
+    } else {
+      freq_inds <- hertz >= hertz_range[1] & hertz <= hertz_range[2]
+      freqs <- hertz[freq_inds]
+      a <- a[freq_inds, ]
+    }
+
+  } else if (freq_type == "angular") {
+    ## Only keep frequencies between 0 and .5
+    freqs <- freqs / n
+    freq_inds <- which(freqs <= .5)
+    a <- a[freq_inds, ]
+    freqs <- freqs[freq_inds]
+
+    ## Change the ylab to remove cycles/window
+    if (ylab == "Frequency (Cycles/Window)") { ylab <- "Frequency" }
+
+  } else if (freq_type != "cycles") {
+    stop("freq_type must be 'cycles', 'hertz', or 'angular'")
+  }
+
+  ## Optionally determine the color of swdft output
+  if (col == "grayscale") {
+    color <- grDevices::grey(seq(1, 0, length = 256))
+  } else if (col == "tim.colors") {
+    color <- fields::tim.colors(n=256)
+  } else {
+    stop("col must be 'grayscale' or 'tim.colors'")
+  }
+
+  # Time-frequency plot using either the fields image.plot function or base R's image function.
+  if (display == TRUE) {
+    if (requireNamespace("fields", quietly = TRUE) & use_fields == TRUE) {
+      fields::image.plot(x=windows, y=freqs, z=t(a),
+                         col=color, xlab=xlab, ylab=ylab,
+                         main=title, cex.main=cex_main, cex.lab=cex_lab, cex.axis=cex_axis,
+                         zlim=zlim, legend.shrink=scale_shrink)
+    } else {
+      graphics::image(x=windows, y=freqs, z=t(a),
+                      col=color, xlab=xlab, ylab=ylab, main=title,
+                      cex.main=cex_main, cex.lab=cex_lab, cex.axis=cex_axis,
+                      zlim=zlim)
+    }
+  } else {
+    return("display set to false, 'plot.swdft' runs without errors")
   }
 }
 
-#' Multivariate Time-Series plot of the SWDFT
+#' Plot method for swdft_mod object
 #'
-#' @param a 2D complex array of output of the 'swdft' function
-#' @param take_log logical. whether to take the logarithm before plotting
-#' @param log_thresh number threshold for logs (so we don't get log(.00001) = -13)
-#' @param only_unique logical. Only use the unique Fourier frequencies, not their aliases.
-#' @param legend logical whether to include a legend
-#' @param title Custom title
-#' @param cex_leg size of the legend
-#' @param ylim Custom y-limits
-#' @param colors custom vector of colors
+#' @param x A swdft_cosreg object
+#' @param y not used, but required by plot generic function
 #'
-plot_mvts <- function(a, take_log=FALSE, log_thresh=.01, only_unique=FALSE,
-                      legend=FALSE, title="SWDFT Frequency Time-Series", cex_leg=1,
-                      ylim=NULL, colors=NULL) {
-  n <- nrow(a)
-  m <- floor(n / 2) + 1
-  P <- ncol(a)
-  N <- P + n - 1
-
-  if (class(a[1,1]) == "complex") { cat("Converting to Squared Modulus \n"); a <- Mod(a)^2 }
-
-  # Optionally convert to log scale
-  if (take_log) {
-    a[which(a < log_thresh)] <- log_thresh
-    a <- log(a)
-  }
-
-  if (only_unique) {
-    m <- floor(nrow(a) / 2) + 1
-    a <- a[2:m, ]
-  }
-
-  if (is.null(ylim)) { ylim = c(min(a) - .1, max(a) + .1) }
-  if (is.null(colors)) {   colors <- grDevices::grey(seq(0, 1, length=n)) }
-
-  graphics::plot((n - 1):(N - 1), a[1, ], ylim = ylim, col = colors[1], type = "l",
-       xlim = c(-20, N - 1), xlab = "Window Position",
-       xaxt = 'n', ylab = "", main = title, cex.main = 1, lwd = 1.2, lty = 1)
-  graphics::axis(1) #, at = seq(from = n - 1, to = N - 1, by = 10))
-
-  for (i in 2:(m - 1)) {
-    graphics::lines((n - 1):(N - 1), a[i, ], col = colors[i], lwd = 1.2, lty = i)
-  }
-
-  if (legend) {
-    legend(x=-20, y=ylim[2], paste0("k=",0:(m - 1)), col=colors,
-           cex=cex_leg, lwd=3, lty=1:m)
-  }
+plot.swdft_mod <- function(x, y, ...) {
+  N <- length(x$data)
+  t <- 0:(N-1)
+  plot(t, x$data, main="Fitted values for 'swdft_mod' object", xlab="", ylab="", pch=19)
+  lines(t, x$data)
+  lines(t, x$fitted, col="red", lty=2)
 }
