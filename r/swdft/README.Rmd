@@ -1,0 +1,29 @@
+---
+  output:
+  md_document:
+  variant: markdown_github
+---
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# Overview
+The swdft package implements the Sliding Window Discrete Fourier Transform (SWDFT), and provides some
+statistical methods and graphical tools based on the SWDFT.
+
+## Installation
+```{r, eval=FALSE}
+# The swdft package is available on CRAN
+install.packages("swdft")
+# The development version is available on Github
+# install.packages("devtools")
+devtools::install_github("leerichardson/swdft/r/swdft")
+```
+
+See the vignette titled "The **swdft** Package" for an introduction. 
