@@ -6,6 +6,8 @@
 #' @param kwidth integer. the width of frequencies to search
 #' @param verbose logical. whether or not to print intermediate results
 #'
+#' @export
+#'
 #' @return S3 object of class 'swdft_local_cosreg'
 #'
 local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
@@ -22,7 +24,7 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
     if (verbose) { cat("Window Size: ", n, " \n") }
 
     ## Compute the range of frequencies and window positions to search
-    a <- swdft::swdft(x=x, n=n)
+    a <- swdft::swdft(x=x, n=n)$a
     freq_range <- swdft::get_freq_range(a=a, kwidth=kwidth)
     phat <- which(Mod(a)^2 == max(Mod(a)^2), arr.ind=TRUE)[1,2]
     prange <- swdft::get_p_range(phat=phat, n=n, N=N, pwidth=pwidth)
