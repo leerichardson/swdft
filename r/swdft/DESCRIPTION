@@ -14,3 +14,5 @@ Suggests: testthat,
     signal,
     nloptr
 RoxygenNote: 6.0.1
+Imports: stats,
+    graphics
