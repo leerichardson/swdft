@@ -11,7 +11,7 @@ swdft_fft(x, n, taper)
 
 \item{n}{integer window size.}
 
-\item{taper}{type of taper for each window position. defaults to 'none', can also be 'cosine'.}
+\item{taper}{length n vector to multiply against the input data for each window position}
 }
 \value{
 n x P array, where P = length(x) - n + 1

@@ -4,10 +4,12 @@
 \alias{fitted.swdft_mod}
 \title{Fitted values method for swdft_cosreg objects}
 \usage{
-\method{fitted}{swdft_mod}(x, ...)
+\method{fitted}{swdft_mod}(object, ...)
 }
 \arguments{
-\item{x}{A swdft_cosreg object}
+\item{object}{A swdft_cosreg object}
+
+\item{...}{optional arguments to match generic function}
 }
 \description{
 Fitted values method for swdft_cosreg objects

@@ -9,15 +9,18 @@ new_swdft_matching_demod(x, n, fitted, thresh, max_cycles, smooth, order,
   return_rows)
 }
 \arguments{
-\item{x}{input signal}
+\item{x}{numeric. Signal to demodulate}
 
-\item{n}{window size for SWDFT}
+\item{n}{integer. Window size for SWDFT}
 
 \item{fitted}{fitted values}
 
-\item{thresh}{threshold for maximum SWDFT coefficient}
+\item{thresh}{numeric. Threshold to determine whether to continue demodulating}
 
-\item{max_cycles}{maximum number of cycles allowed}
+\item{max_cycles}{maximum number of demodulation cycles}
+
+\item{smooth}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
+or 'butterworth' (the default)}
 
 \item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
 
@@ -40,8 +43,6 @@ new_swdft_matching_demod(x, n, fitted, thresh, max_cycles, smooth, order,
 \item{fits}{Fitted values for each iteration}
 
 \item{return_rows}{Logival vector indicating which iterations occured. Used for subsetting.}
-
-\item{smooth.}{character. Type of smoothing to use, accepts either 'ma', 'double_ma', or 'butterworth' (the default)}
 }
 \value{
 list with the following elements

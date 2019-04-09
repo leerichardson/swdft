@@ -17,7 +17,7 @@ swdft3d <- function(x, n0, n1, n2, type="base") {
     stop("type for 3D algorithm must be 'base' (fftwtools doesn't have a 3D program)")
   }
 
-  swdft3d_obj <- swdft::new_swdft3d(a=a, x=x, n0=n0, n1=n1, n2=n2, type=type)
+  swdft3d_obj <- new_swdft3d(a=a, x=x, n0=n0, n1=n1, n2=n2, type=type)
   return( swdft3d_obj )
 }
 

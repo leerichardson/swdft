@@ -24,10 +24,10 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
     if (verbose) { cat("Window Size: ", n, " \n") }
 
     ## Compute the range of frequencies and window positions to search
-    a <- swdft::swdft(x=x, n=n)$a
-    freq_range <- swdft::get_freq_range(a=a, kwidth=kwidth)
+    a <- swdft(x=x, n=n)$a
+    freq_range <- get_freq_range(a=a, kwidth=kwidth)
     phat <- which(Mod(a)^2 == max(Mod(a)^2), arr.ind=TRUE)[1,2]
-    prange <- swdft::get_p_range(phat=phat, n=n, N=N, pwidth=pwidth)
+    prange <- get_p_range(phat=phat, n=n, N=N, pwidth=pwidth)
 
     ## Optimize the frequuency selection for each window position
     for (p in prange) {
@@ -48,13 +48,13 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
 
   ## Return an S3 object w/ results
   max_ind <- which.max(param_grid[, "loglik"])
-  fitted <- swdft::local_signal(N=N, A=param_grid[max_ind,"A"], Fr=param_grid[max_ind,"f"],
+  fitted <- local_signal(N=N, A=param_grid[max_ind,"A"], Fr=param_grid[max_ind,"f"],
                                 phase=param_grid[max_ind,"Phi"], S=param_grid[max_ind,"S"],
                                 L=param_grid[max_ind, "L"])
 
-  local_cosreg_obj <- swdft::new_swdft_local_cosreg(coefficients=param_grid[max_ind, c("f", "S", "L", "A", "Phi", "sigma")],
+  local_cosreg_obj <- new_swdft_local_cosreg(coefficients=param_grid[max_ind, c("f", "S", "L", "A", "Phi", "sigma")],
                                                     fitted=fitted, residuals=x-fitted, data=x,
-                                                    window_params=param_grid[complete.cases(param_grid),])
+                                                    window_params=param_grid[stats::complete.cases(param_grid),])
 
   return(local_cosreg_obj)
 }
@@ -65,6 +65,7 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
 #' @param fitted fitted values of cosine regression model
 #' @param residuals residuals of cosine regression model
 #' @param data original signal used to fit cosine regression
+#' @param window_params data frame of fitted coefficients for each window size
 #'
 #' @return list with the following elements
 #' \itemize{
@@ -73,7 +74,7 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
 #'   \item fitted. fitted values of cosine regression model
 #'   \item residuals. residuals of cosine regression model
 #'   \item data. original signal used to fit cosine regression
-#'   \item window_params. data frame of fitted coefficients for each window position
+#'   \item window_params. data frame of fitted coefficients for each window size
 #' }
 #'
 new_swdft_local_cosreg <- function(coefficients, fitted, residuals, data, window_params) {
@@ -147,10 +148,10 @@ get_sl <- function(n, p) {
 #' @param ftype what to return
 #'
 lcr_loglik <- function(f, x, S, L, ftype="full") {
-  A_Phi <- swdft::get_aphi(x=x, S=S, L=L, f=f)
-  fitted <- swdft::local_signal(N=length(x), A=A_Phi[1], Fr=f, phase=A_Phi[2], S=S, L=L)
-  sigma <- swdft::get_sigma(x=x, fitted=fitted, N=length(x))
-  loglik <- swdft::get_loglik(x=x, fitted=fitted, sigma=sigma, N=length(x))
+  A_Phi <- get_aphi(x=x, S=S, L=L, f=f)
+  fitted <- local_signal(N=length(x), A=A_Phi[1], Fr=f, phase=A_Phi[2], S=S, L=L)
+  sigma <- get_sigma(x=x, fitted=fitted, N=length(x))
+  loglik <- get_loglik(x=x, fitted=fitted, sigma=sigma, N=length(x))
 
   ## Optionally return either all the parameters or just the log likelihood
   ## in case we are optimizing the function
@@ -172,10 +173,10 @@ get_aphi <- function(x, S, L, f) {
   indicator <- rep(0, N)
   indicator[(S+1):(S+L)] <- 1
   U <- matrix(data=NA, nrow=N, ncol=2)
-  U[, 1] <- swdft::cosine(N=N, Fr=f) * indicator
-  U[, 2] <- swdft::sine(N=N, Fr=f) * indicator
-  fitted <- lm(x ~ U - 1)
-  beta <- coefficients(fitted)
+  U[, 1] <- cosine(N=N, Fr=f) * indicator
+  U[, 2] <- sine(N=N, Fr=f) * indicator
+  fitted <- stats::lm(x ~ U - 1)
+  beta <- stats::coefficients(fitted)
   A <- sqrt( sum(beta^2) )
   Phi <- atan2(y=-beta[2], x=beta[1])
 
@@ -212,7 +213,7 @@ get_loglik <- function(x, fitted, sigma, N) {
 #' #' @param ftype
 #' #'
 #' eval_swdft <- function(f, x, n, t, normalize=sqrt(2/n), ftype="optim") {
-#'   twiddle <- swdft::prou(n=n)^(-f * t )
+#'   twiddle <- prou(n=n)^(-f * t )
 #'   if (length(x) != length(twiddle)) { browser() }
 #'
 #'   val <- normalize * Mod( sum(x * twiddle) )^2

@@ -18,7 +18,7 @@ test_that("Complex demodulation matches SWDFT w/ moving average filter", {
 
   ## Verify that we can shift the SWDFT to match the demodulation
   x_demod <- swdft::complex_demod(x=x, f0=f0, smooth='ma', order=window_size)
-  k_swdft_demod <- swdft::demod_swdft(a=a, k=round(f0 * window_size))
+  k_swdft_demod <- swdft:::demod_swdft(a=a, k=round(f0 * window_size))
   expect_true(
     all.equal(target=round(k_swdft_demod$demod, digits=3), current=round(x_demod$demod$y_smooth,digits=3))
   )

@@ -8,22 +8,22 @@ matching_demod(x, n, thresh = 0.05, max_cycles = 5, smooth = "ma",
   order = 5, passfreq_scale = 2, debug = FALSE)
 }
 \arguments{
-\item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
+\item{x}{numeric. Signal to demodulate}
 
-\item{x.}{numeric. Signal to demodulate}
+\item{n}{integer. Window size for SWDFT}
 
-\item{n.}{integer. Window size for SWDFT}
+\item{thresh}{numeric. Threshold to determine whether to continue demodulating}
 
-\item{thresh.}{numeric. Threshold to determine whether to continue demodulating}
+\item{max_cycles}{maximum number of demodulation cycles}
 
-\item{max_cycles.}{maximum number of demodulation cycles}
-
-\item{smooth.}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
+\item{smooth}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
 or 'butterworth' (the default)}
 
-\item{passfreq}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0}
+\item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
 
-\item{debug.}{Logical. Whether to print out intermediate output.}
+\item{passfreq_scale}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0}
+
+\item{debug}{Logical. Whether to print out intermediate output.}
 }
 \value{
 An S3 'swdft_matching_demod' object. See ?new_swdft_matching_demod for details.

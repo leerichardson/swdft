@@ -1,6 +1,6 @@
 context("Visualization")
 
-test_that("1D SWDFT Algorithms give the same answer", {
+test_that("Visualizations work", {
   N <- 60
   n <- 32
   signal <- swdft::local_signal(N=N, A=1, Fr=4/32, phase=1, S=10, L=40)

@@ -1,4 +1,4 @@
-5#' Sliding Window Discrete Fourier Transform
+#' Sliding Window Discrete Fourier Transform
 #'
 #' @param x real or complex vector
 #' @param n integer window size.
@@ -6,7 +6,7 @@
 #' R's base fft function is used if
 #' @param pad optionally zero-pad the array to that the output
 #' array has the same dimension as the original time-series
-#' @param taper type of taper for each window position. defaults to 'none', can also be 'cosine'.
+#' @param taper_type type of taper for each window position. defaults to 'none', can also be 'cosine'.
 #' @param p Proportion to be tapered at each end of the series. Argument
 #' copied from the spec.taper function in the default stats package. Defaults to .1.
 #' @param smooth Type of smoother. Defaults to 'none', can also be 'daniell' or 'modified daniell'.
@@ -44,10 +44,10 @@ swdft <- function(x, n, type="fftw", pad=TRUE, taper_type='none', p=.1, smooth='
   }
 
   ## Optionally smooth the final coefficients
-  if (smooth != 'none') { a <- swdft::smooth_swdft(a=a, ktype=smooth, m=m, num_convs=num_convs) }
+  if (smooth != 'none') { a <- smooth_swdft(a=a, ktype=smooth, m=m, num_convs=num_convs) }
 
   ## Return a 'swdft' S3 object
-  swdft_obj <- swdft::new_swdft(a=a, x=x, n=n, type=type, pad=pad, taper_type=taper_type,
+  swdft_obj <- new_swdft(a=a, x=x, n=n, type=type, pad=pad, taper_type=taper_type,
                                 taper=taper, p=p, smooth=smooth, m=m, num_convs=num_convs)
   return( swdft_obj )
 }
@@ -77,6 +77,7 @@ new_swdft <- function(a, x, n, type, pad, taper_type, taper, p, smooth, m, num_c
 #' Sliding Window Discrete Fourier Transform with base R
 #'
 #' @inheritParams swdft
+#' @param taper length n vector to multiply against the input data for each window position
 #'
 #' @return n x P array, where P = length(x) - n + 1
 #'
@@ -95,6 +96,7 @@ swdft_fft <- function(x, n, taper) {
 #' Sliding Window Discrete Fourier Transform using fftw
 #'
 #' @inheritParams swdft
+#' @inheritParams swdft_fft
 #'
 #' @return n x P array, where P = length(x) - n + 1
 #'

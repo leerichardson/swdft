@@ -4,19 +4,17 @@
 \alias{plot.swdft}
 \title{Plot method for 'swdft' object}
 \usage{
-\method{plot}{swdft}(x, y = NULL, freq_type = "cycles", fs = NULL,
+\method{plot}{swdft}(x, freq_type = "cycles", fs = NULL,
   hertz_range = NULL, take_log = FALSE, log_thresh = 1e-05,
   use_fields = TRUE, scale_shrink = 0.9, zlim = NULL,
   xlab = "Window Position", ylab = "Frequency (Cycles/Window)",
   title = "SWDFT", cex_main = 1, cex_lab = 1, cex_axis = 1,
   custom_xaxis = NULL, custom_yaxis = NULL, col = "grayscale",
-  display = TRUE)
+  display = TRUE, ...)
 }
 \arguments{
 \item{x}{Object of class 'swdft'. If x$a is complex-valued, it is converted to the squared
 modulus. If x$a is real-valued, then we assume that it represents the squared}
-
-\item{y}{not used, but required by plot generic function}
 
 \item{freq_type}{Specify how to display the frequency axis. Either 'cycles' (default), 'angular', or 'hertz'}
 
@@ -47,6 +45,8 @@ from the graphics package. The advantage of image.plot is that we get a color sc
 
 \item{cex_lab}{how large to make the labels}
 
+\item{cex_axis}{how large to make the axis labels}
+
 \item{custom_xaxis}{Defaults to NULL. Otherwise, used to change the x-axis}
 
 \item{custom_yaxis}{Defaults to NULL. Otherwise, used to change the y-axis}
@@ -54,6 +54,8 @@ from the graphics package. The advantage of image.plot is that we get a color sc
 \item{col}{defauts to grayscale, can also be 'tim.colors' from fields package}
 
 \item{display}{logical. Defaults to TRUE, only used for testing purposes, so it should always be TRUE.}
+
+\item{...}{optionsal arguments to match the plot generic function}
 }
 \description{
 Plot method for 'swdft' object

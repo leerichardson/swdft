@@ -18,6 +18,8 @@ R's base fft function is used if}
 \item{pad}{optionally zero-pad the array to that the output
 array has the same dimension as the original time-series}
 
+\item{taper_type}{type of taper for each window position. defaults to 'none', can also be 'cosine'.}
+
 \item{p}{Proportion to be tapered at each end of the series. Argument
 copied from the spec.taper function in the default stats package. Defaults to .1.}
 
@@ -27,8 +29,6 @@ If smooth is 'none', then the SWDFT returns the smoothed squared modulus coeffic
 \item{m}{width of kernel. Defaults to 2}
 
 \item{num_convs}{Number of times to convolve the kernel. Defailts to 1}
-
-\item{taper}{type of taper for each window position. defaults to 'none', can also be 'cosine'.}
 }
 \value{
 An S3 'swdft' object. See ?new_swdft for details.

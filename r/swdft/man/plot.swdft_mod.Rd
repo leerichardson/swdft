@@ -4,7 +4,7 @@
 \alias{plot.swdft_mod}
 \title{Plot method for swdft_mod object}
 \usage{
-\method{plot}{swdft_mod}(x, y, ...)
+\method{plot}{swdft_mod}(x, y = NULL)
 }
 \arguments{
 \item{x}{A swdft_cosreg object}

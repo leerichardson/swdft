@@ -12,8 +12,9 @@ get_taper(n, taper, p)
 \item{taper}{taper type. Can be either 'none' (default) or 'cosine'}
 
 \item{p}{proportion to taper on each end, if cosine taper is used}
-
-\item{A}{length n taper}
+}
+\value{
+length n taper
 }
 \description{
 Create taper for the SWDFT

@@ -4,10 +4,12 @@
 \alias{residuals.swdft_mod}
 \title{Residuals method for swdft_cosreg objects}
 \usage{
-\method{residuals}{swdft_mod}(x, ...)
+\method{residuals}{swdft_mod}(object, ...)
 }
 \arguments{
-\item{x}{A swdft_cosreg object}
+\item{object}{A swdft_cosreg object}
+
+\item{...}{optional arguments to match generic function}
 }
 \description{
 Residuals method for swdft_cosreg objects

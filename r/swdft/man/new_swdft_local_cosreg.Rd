@@ -14,6 +14,8 @@ new_swdft_local_cosreg(coefficients, fitted, residuals, data, window_params)
 \item{residuals}{residuals of cosine regression model}
 
 \item{data}{original signal used to fit cosine regression}
+
+\item{window_params}{data frame of fitted coefficients for each window size}
 }
 \value{
 list with the following elements
@@ -23,7 +25,7 @@ list with the following elements
   \item fitted. fitted values of cosine regression model
   \item residuals. residuals of cosine regression model
   \item data. original signal used to fit cosine regression
-  \item window_params. data frame of fitted coefficients for each window position
+  \item window_params. data frame of fitted coefficients for each window size
 }
 }
 \description{

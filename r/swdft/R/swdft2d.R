@@ -25,7 +25,7 @@ swdft2d <- function(x, n0, n1, type="fftw") {
   }
 
   ## Return a 'swdft2d' S3 object
-  swdft2d_obj <- swdft::new_swdft2d(a=a, x=x, n0=n0, n1=n1, type=type)
+  swdft2d_obj <- new_swdft2d(a=a, x=x, n0=n0, n1=n1, type=type)
   return( swdft2d_obj )
 
   return(a)

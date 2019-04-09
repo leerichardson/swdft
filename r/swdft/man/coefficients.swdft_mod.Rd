@@ -4,10 +4,12 @@
 \alias{coefficients.swdft_mod}
 \title{Coefficients method for swdft_cosreg objects}
 \usage{
-\method{coefficients}{swdft_mod}(x, ...)
+\method{coefficients}{swdft_mod}(object, ...)
 }
 \arguments{
-\item{x}{A swdft_cosreg object}
+\item{object}{A swdft_cosreg object}
+
+\item{...}{optional arguments to match generic function}
 }
 \description{
 Coefficients method for swdft_cosreg objects

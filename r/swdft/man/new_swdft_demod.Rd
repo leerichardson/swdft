@@ -7,9 +7,9 @@
 new_swdft_demod(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, order, passfreq)
 }
 \arguments{
-\item{x}{input signal}
+\item{x}{numeric vector}
 
-\item{f0}{center frequency to demodulate}
+\item{f0}{numeric scalar. Frequency to demodulate}
 
 \item{A_t}{extracted amplitude from y_smooth}
 
@@ -21,12 +21,12 @@ new_swdft_demod(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, order, passfreq)
 
 \item{y_smooth}{smoothed demodulated signal}
 
+\item{smooth}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
+or 'butterworth' (the default)}
+
 \item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
 
-\item{passfreq}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0}
-
-\item{smooth.}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
-or 'butterworth' (the default)}
+\item{passfreq}{numeric frequency used as the passfreq in the low-pass filter}
 }
 \value{
 list with the following elements

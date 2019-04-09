@@ -2,7 +2,6 @@
 #'
 #' @param x Object of class 'swdft'. If x$a is complex-valued, it is converted to the squared
 #' modulus. If x$a is real-valued, then we assume that it represents the squared
-#' @param y not used, but required by plot generic function
 #' @param freq_type Specify how to display the frequency axis. Either 'cycles' (default), 'angular', or 'hertz'
 #' @param fs sample rate. Used if freq_type='hertz'
 #' @param hertz_range integer vector, given by (low, high). Specifies the range of hertz to display and
@@ -19,18 +18,25 @@
 #' @param title Custom title
 #' @param cex_main how large to make the title
 #' @param cex_lab how large to make the labels
+#' @param cex_axis how large to make the axis labels
 #' @param custom_xaxis Defaults to NULL. Otherwise, used to change the x-axis
 #' @param custom_yaxis Defaults to NULL. Otherwise, used to change the y-axis
 #' @param col defauts to grayscale, can also be 'tim.colors' from fields package
 #' @param display logical. Defaults to TRUE, only used for testing purposes, so it should always be TRUE.
+#' @param ... optionsal arguments to match the plot generic function
+#'
+#' @import graphics
+#' @importFrom grDevices grey
+#'
+#' @export
 #'
 #' @return NULL
 #'
-plot.swdft <- function(x, y=NULL, freq_type="cycles", fs=NULL, hertz_range=NULL,
+plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
                        take_log=FALSE, log_thresh=.00001, use_fields=TRUE, scale_shrink=.9,
                        zlim=NULL, xlab="Window Position", ylab="Frequency (Cycles/Window)", title="SWDFT",
                        cex_main=1, cex_lab=1, cex_axis=1, custom_xaxis=NULL, custom_yaxis=NULL,
-                       col="grayscale", display=TRUE) {
+                       col="grayscale", display=TRUE, ...) {
   a <- x$a
   n <- nrow(a)
   P <- ncol(a)
@@ -117,10 +123,10 @@ plot.swdft <- function(x, y=NULL, freq_type="cycles", fs=NULL, hertz_range=NULL,
 #' @param x A swdft_cosreg object
 #' @param y not used, but required by plot generic function
 #'
-plot.swdft_mod <- function(x, y, ...) {
+plot.swdft_mod <- function(x, y=NULL) {
   N <- length(x$data)
   t <- 0:(N-1)
-  plot(t, x$data, main="Fitted values for 'swdft_mod' object", xlab="", ylab="", pch=19)
-  lines(t, x$data)
-  lines(t, x$fitted, col="red", lty=2)
+  graphics::plot(t, x$data, main="Fitted values for 'swdft_mod' object", xlab="", ylab="", pch=19)
+  graphics::lines(t, x$data)
+  graphics::lines(t, x$fitted, col="red", lty=2)
 }

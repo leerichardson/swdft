@@ -9,7 +9,7 @@
 #'
 dirichlet <- function(x, phase=0, a=0, b=length(x)-1) {
   i <- complex(length.out=1, real=0, imaginary=1)
-  exp(x = i * (( ((a + b) * x) / 2 ) + phase) ) * swdft::dirichlet_kernel(x=x, n=b-a+1)
+  exp(x = i * (( ((a + b) * x) / 2 ) + phase) ) * dirichlet_kernel(x=x, n=b-a+1)
 }
 
 #' Dirichlet Kernel

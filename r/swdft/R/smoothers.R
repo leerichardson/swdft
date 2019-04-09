@@ -6,6 +6,8 @@
 #' @param m kernel width from stats::kernel
 #' @param num_convs num_convs from stats::kernel
 #'
+#' @export
+#'
 #' @return Smooth squared modulues SWDFT coefficients
 #'
 smooth_swdft <- function(a, ktype='daniell', m=2, num_convs=1) {

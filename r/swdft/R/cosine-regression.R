@@ -5,6 +5,8 @@
 #'
 #' @export
 #'
+#' @importFrom stats lm coefficients
+#'
 #' @return S3 object of class 'swdft_cosreg'. See ?new_swdft_cosreg for details.
 #'
 cosreg <- function(x, f) {
@@ -14,14 +16,14 @@ cosreg <- function(x, f) {
   design_matrix <- matrix(data=NA, nrow=N, ncol = 2 * length(f))
   iter <- 0
   for (freq in f) {
-    design_matrix[, (2 * iter) + 1] <- swdft::cosine(N=N, Fr=freq)
-    design_matrix[, (2 * iter) + 2] <- swdft::sine(N=N, Fr=freq)
+    design_matrix[, (2 * iter) + 1] <- cosine(N=N, Fr=freq)
+    design_matrix[, (2 * iter) + 2] <- sine(N=N, Fr=freq)
     iter <- iter + 1
   }
 
   ## Fit the design matrix with least squares
-  cosreg_fit <- lm(x ~ design_matrix - 1)
-  lm_coefs <- coefficients(object=cosreg_fit)
+  cosreg_fit <- stats::lm(x ~ design_matrix - 1)
+  lm_coefs <- stats::coefficients(object=cosreg_fit)
 
   ## Extract the amplitudes and phases
   coef_mat <- matrix(data=NA_real_, ncol=3, nrow=length(f))
@@ -43,7 +45,7 @@ cosreg <- function(x, f) {
   }
 
   ## Return an S3 'swdft_cosreg' object w/ results
-  cosreg_obj <- swdft::new_swdft_cosreg(coefficients=coef_mat, fitted=fitted, residuals=x-fitted, data=x)
+  cosreg_obj <- new_swdft_cosreg(coefficients=coef_mat, fitted=fitted, residuals=x-fitted, data=x)
   return(cosreg_obj)
 }
 
@@ -75,24 +77,31 @@ new_swdft_cosreg <- function(coefficients, fitted, residuals, data) {
 
 #' Coefficients method for swdft_cosreg objects
 #'
-#' @param x A swdft_cosreg object
+#' @param object A swdft_cosreg object
+#' @param ... optional arguments to match generic function
 #'
-coefficients.swdft_mod <- function(x, ...) {
-  x$coefficients
+#' @export
+#'
+coefficients.swdft_mod <- function(object, ...) {
+  object$coefficients
 }
 
 #' Fitted values method for swdft_cosreg objects
 #'
-#' @param x A swdft_cosreg object
+#' @inheritParams coefficients.swdft_mod
 #'
-fitted.swdft_mod <- function(x, ...) {
-  x$fitted
+#' @export
+#'
+fitted.swdft_mod <- function(object, ...) {
+  object$fitted
 }
 
 #' Residuals method for swdft_cosreg objects
 #'
-#' @param x A swdft_cosreg object
+#' @inheritParams coefficients.swdft_mod
 #'
-residuals.swdft_mod <- function(x, ...) {
-  x$residuals
+#' @export
+#'
+residuals.swdft_mod <- function(object, ...) {
+  object$residuals
 }

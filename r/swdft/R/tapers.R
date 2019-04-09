@@ -4,7 +4,7 @@
 #' @param taper taper type. Can be either 'none' (default) or 'cosine'
 #' @param p proportion to taper on each end, if cosine taper is used
 #'
-#' @param A length n taper
+#' @return length n taper
 #'
 get_taper <- function(n, taper, p) {
   if (taper == 'none') {

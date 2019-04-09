@@ -2,7 +2,7 @@
 #'
 #' @param x numeric vector
 #' @param f0 numeric scalar. Frequency to demodulate
-#' @param smooth. character. Type of smoothing to use, accepts either 'ma', 'double_ma',
+#' @param smooth character. Type of smoothing to use, accepts either 'ma', 'double_ma',
 #' or 'butterworth' (the default)
 #' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
 #' @param passfreq_scale numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2,
@@ -28,8 +28,8 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
 
   ## Smooth the demodulated series
   if (smooth == "ma") {
-    re_smooth <- swdft::moving_average(x=Re(y), order=order)
-    im_smooth <- swdft::moving_average(x=Im(y), order=order)
+    re_smooth <- moving_average(x=Re(y), order=order)
+    im_smooth <- moving_average(x=Im(y), order=order)
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
 
     ## Optional shift factor that sets the demodulated series equal
@@ -38,13 +38,13 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
       l <- floor( order / 2)
       k <- f0 * window_size
       s <- (t - l) * k
-      shift <- swdft::prou(n=order)^(s)
+      shift <- prou(n=order)^(s)
       y_smooth <- y_smooth * shift
     }
 
   } else if (smooth == "double_ma") {
-    re_smooth <- swdft::moving_average(x=swdft::moving_average(x=Re(y), order=order), order=order)
-    im_smooth <- swdft::moving_average(x=swdft::moving_average(x=Im(y), order=order), order=order)
+    re_smooth <- moving_average(x=moving_average(x=Re(y), order=order), order=order)
+    im_smooth <- moving_average(x=moving_average(x=Im(y), order=order), order=order)
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
 
   } else if (smooth == "butterworth") {
@@ -63,7 +63,7 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
   fitted <- A_t * cos((2 * pi * f0 * t) + Phi_t)
 
   ## Return a 'swdft_demod' S3 object
-  swdft_demod_obj <- swdft::new_swdft_demod(x=x, f0=f0, A_t=A_t, Phi_t=Phi_t, fitted=fitted, y=y,
+  swdft_demod_obj <- new_swdft_demod(x=x, f0=f0, A_t=A_t, Phi_t=Phi_t, fitted=fitted, y=y,
                                             y_smooth=y_smooth, smooth=smooth, order=order,
                                             passfreq=passfreq_scale*f0)
   return( swdft_demod_obj )
@@ -71,17 +71,13 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
 
 #' Constructor function for class 'swdft_demod'
 #'
-#' @param x input signal
-#' @param f0 center frequency to demodulate
+#' @inheritParams complex_demod
 #' @param A_t extracted amplitude from y_smooth
 #' @param Phi_t extracted phase from y_smooth
 #' @param fitted fitted values
 #' @param y non-smoothed demodulated signal
 #' @param y_smooth smoothed demodulated signal
-#' @param smooth. character. Type of smoothing to use, accepts either 'ma', 'double_ma',
-#' or 'butterworth' (the default)
-#' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
-#' @param passfreq numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0
+#' @param passfreq numeric frequency used as the passfreq in the low-pass filter
 #'
 #' @export
 #'
@@ -108,15 +104,15 @@ new_swdft_demod <- function(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, orde
 
 #' Matching Demodulation
 #'
-#' @param x. numeric. Signal to demodulate
-#' @param n. integer. Window size for SWDFT
-#' @param thresh. numeric. Threshold to determine whether to continue demodulating
-#' @param max_cycles. maximum number of demodulation cycles
-#' @param smooth. character. Type of smoothing to use, accepts either 'ma', 'double_ma',
+#' @param x numeric. Signal to demodulate
+#' @param n integer. Window size for SWDFT
+#' @param thresh numeric. Threshold to determine whether to continue demodulating
+#' @param max_cycles maximum number of demodulation cycles
+#' @param smooth character. Type of smoothing to use, accepts either 'ma', 'double_ma',
 #' or 'butterworth' (the default)
 #' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
-#' @param passfreq numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0
-#' @param debug. Logical. Whether to print out intermediate output.
+#' @param passfreq_scale numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0
+#' @param debug Logical. Whether to print out intermediate output.
 #'
 #' @export
 #'
@@ -140,7 +136,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
   while (cycle <= max_cycles) {
     ## Select the frequency that corresponds to the largest SWDFT frequency
     cycle_resids <- x - fitted
-    a <- swdft::swdft(x=cycle_resids, n=n, taper='cosine')$a * (1 / n)
+    a <- swdft(x=cycle_resids, n=n, taper_type='cosine')$a * (1 / n)
     maxval <- max(Mod(a)^2)
     maxvals <- c(maxvals, maxval)
     if (debug == TRUE) { cat("Max SqMod: ", maxval, "in iteration ", cycle, " \n") }
@@ -159,9 +155,9 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
 
     ## Apply complex demodulation at the frequency w/ the largest SWDFT coefficient
     if (smooth == "ma") {
-      khat_demod <- swdft::complex_demod(x=x, f0=f0, smooth='ma', order=order)
+      khat_demod <- complex_demod(x=x, f0=f0, smooth='ma', order=order)
     } else if (smooth == "butterworth") {
-      khat_demod <- swdft::complex_demod(x=x, f0=f0, smooth='butterworth', passfreq_scale=passfreq_scale*f0)
+      khat_demod <- complex_demod(x=x, f0=f0, smooth='butterworth', passfreq_scale=passfreq_scale*f0)
     } else {
       stop("filter must be 'ma' or 'butterworth'")
     }
@@ -185,11 +181,11 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
 
     ## Optionally plot the current fit and SWDFT of the resids
     if (debug == TRUE) {
-      par(mfrow=c(2, 1))
-      plot(x=x, cex=.4, pch=19)
-      lines(fitted, lwd=2, col="red")
-      plot_swdft(a=a, freq_type="angular", col="tim.colors")
-      par(mfrow=c(1, 1))
+      graphics::par(mfrow=c(2, 1))
+      graphics::plot(x=x, cex=.4, pch=19)
+      graphics::lines(fitted, lwd=2, col="red")
+      plot(a=a, freq_type="angular", col="tim.colors")
+      graphics::par(mfrow=c(1, 1))
     }
   }
 
@@ -204,13 +200,8 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
 
 #' Constructor function for class 'swdft_matching_demod'
 #'
-#' @param x input signal
-#' @param n window size for SWDFT
+#' @inheritParams matching_demod
 #' @param fitted fitted values
-#' @param thresh threshold for maximum SWDFT coefficient
-#' @param max_cycles maximum number of cycles allowed
-#' @param smooth. character. Type of smoothing to use, accepts either 'ma', 'double_ma', or 'butterworth' (the default)
-#' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
 #' @param passfreqs pass frequency used in each iteration
 #' @param maxvals Maximum SWDFT coefficient for each iteration
 #' @param freqs Frequencies used in each iteration
@@ -265,7 +256,7 @@ demod_swdft <- function(a, k) {
 
   ## Shift the frequency band to math the demodulated series
   s <- ( (1:N) %% n) * k
-  shift <- swdft::prou(n=n)^(-s)
+  shift <- prou(n=n)^(-s)
   demod_k <- a[k + 1, ] * shift
   demod_signal <- c(rep(NA, l), demod_k[n:N], rep(NA, l))
 

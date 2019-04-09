@@ -7,10 +7,10 @@ test_that("Cosine regression works", {
   A <- 1
   Fr <- 2 / window_size
   phase <- 1
-  signal <- swdft::cosine(N=N, A=A, Fr=Fr, phase=phase)
+  signal <- cosine(N=N, A=A, Fr=Fr, phase=phase)
 
   ## Fit the cosine regression at the true frequency
-  cosreg_fit <- swdft::cosreg(x=signal, f=Fr)
+  cosreg_fit <- cosreg(x=signal, f=Fr)
 
   ## Check that the parameters match
   expect_true( all(class(cosreg_fit) == c("swdft_cosreg", "swdft_mod")) )

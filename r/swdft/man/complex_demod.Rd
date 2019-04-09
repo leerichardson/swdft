@@ -12,6 +12,9 @@ complex_demod(x, f0, smooth = "butterworth", order = 5,
 
 \item{f0}{numeric scalar. Frequency to demodulate}
 
+\item{smooth}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
+or 'butterworth' (the default)}
+
 \item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
 
 \item{passfreq_scale}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2,
@@ -21,9 +24,6 @@ which corresponds to a pass frequency of 2 * f0.}
 a moving average filter is used. Otherwise, never used.}
 
 \item{window_size}{defaults to NULL, only used when match_swdft=TRUE, so can ignore.}
-
-\item{smooth.}{character. Type of smoothing to use, accepts either 'ma', 'double_ma',
-or 'butterworth' (the default)}
 }
 \value{
 An S3 'swdft_demod' object. See ?new_swdft_matching_demod for details.
