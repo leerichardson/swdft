@@ -1,0 +1,52 @@
+# --- Goals ---
+- Revised "swdft" package for thesis on CRAN by defense
+
+# --- Tasks ---
+
+## R Package
+- Organize what will be released in the final "swdft" package for the thesis.
+- Turn outputs into an S3 Class:
+  + Read Hadley's book chapter on S3 classes. (DONE)
+  + Cosine regression (DONE)
+  * Change the output into a "constructor" or helper or whatever. (DONE)
+  + Local Cosine Regression (DONE)
+    * Remove the NA rows (DONE)
+    - Finished documenting the new constructor functions! (DONE)
+  + Complex Demodulation (DONE)
+    - Generate constructor function (DONE)
+    - Write tests (DONE)
+  + Matching Demodulation (DONE)
+    - Generate constructor function (DONE)
+    - Write tests (DONE)
+  + SWDFT 1D, 2D, 3D, tapers, smoothers, and visualization!
+    - Update 1D tests (DONE)
+    - Generate 1D constructor function (DONE)
+    - Get smoothers, tapers figured out (DONE)
+    - Get 2D and 3D cases complete (DONE)
+      + Make sure the 2D SWDFT outputs an $n_0 \times n_1 \times P_0 \times P_1$ array, to keep consistent w/ the $n \times P$ 1D SWDFT output. (DONE)
+    - Make plot.swdft for "swdft" class (DONE)
+    - 
+- Update all other functions that use the 'swdft' to now deal w/ the class. 
+- (REACH): Cosine regression: Add a "number of parameters" argument.
+- (REACH): Cosine regression: Add an option that automatically selects the largest frequency, use nloptR to find it specifically!
+- (REACH) Complex demod + matching demod: Add: Option to pass in a custom range of frequencies. To this AND to complex_demod!
+- (REACH) Overall: Write a vignette that shows how "swdft" can be used for statistical analysis.
+- 
+- Once everything is complete, submit to CRAN!
+  + Get R CMD CHECK up and running!
+- 
+- (REACH) Add a customized Multitaper method.
+- (REACH) See if I can write the entire algorithm in c++, then only use a wrapper function for the entire method. This would allow easy integration with Python and other languages as well.
+
+## Python Package
+- Read, understand Python Packages and Modules
+  + Create leePy for examples of how this works!
+- Read, understand "PyTest" Testing Framework
+- Read, understand Sphinx Documentation
+- Read, understand virtual environments
+
+## **C++ Package**
+- Figure out how to put the "swdft" function entirely in C++
+
+## General
+- Polish the README and update so that it references the new paper.
