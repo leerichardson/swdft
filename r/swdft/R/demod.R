@@ -134,7 +134,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
   while (cycle <= max_cycles) {
     ## Select the frequency that corresponds to the largest SWDFT frequency
     cycle_resids <- x - fitted
-    a <- swdft::swdft(x=cycle_resids, n=n, taper='cosine') * (1 / n)
+    a <- swdft::swdft(x=cycle_resids, n=n, taper='cosine')$a * (1 / n)
     maxval <- max(Mod(a)^2)
     maxvals <- c(maxvals, maxval)
     if (debug == TRUE) { cat("Max SqMod: ", maxval, "in iteration ", cycle, " \n") }
