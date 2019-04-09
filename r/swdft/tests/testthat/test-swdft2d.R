@@ -1,4 +1,4 @@
-context("2D and 3D SWDFTs work")
+context("2D and 3D SWDFTs")
 
 test_that("2D, 3D SWDFT Algorithms give the same answer", {
   # --- 2D SWDFT ----
@@ -26,4 +26,7 @@ test_that("2D, 3D SWDFT Algorithms give the same answer", {
   data <- complex(length.out= N0 * N1 * N2, real=rnorm(N0 * N1 * N2), imaginary=rnorm(N0 * N1 * N2))
   x <- array(data=data, dim=c(N0, N1, N2))
   a_base <- swdft3d(x=x, n0=n0, n1=n1, n2=n2)
+
+  expect_true( class(a_base)[1] == "swdft3d" )
+  expect_true( all( dim(a_base$a) == c(8, 8, 8, 13, 13, 13) ) )
 })
