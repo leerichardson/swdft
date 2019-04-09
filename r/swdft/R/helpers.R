@@ -1,3 +1,12 @@
+#' Simple high pass filter
+#'
+#' @param x the vector or time-series
+#' @param order the order of the filter
+#'
+moving_average <- function(x, order) {
+  stats::filter(x, rep(1 / order, order), sides=2)
+}
+
 #' Phase unwrapping
 #'
 #' @param p vector of phases fit by demodulation
