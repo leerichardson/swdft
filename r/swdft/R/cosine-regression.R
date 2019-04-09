@@ -1,9 +1,11 @@
 #' Cosine regression
 #'
-#' @param x numeric. Signal
-#' @param f numeric. Single of vector of frequenies to fit.
+#' @param x numeric. Signal.
+#' @param f numeric. scalar or vector of frequencies to fit.
 #'
-#' @return S3 object of class 'swdft_mod'
+#' @export
+#'
+#' @return S3 object of class 'swdft_cosreg'. See ?new_swdft_cosreg for details.
 #'
 cosreg <- function(x, f) {
   N <- length(x)
@@ -52,6 +54,8 @@ cosreg <- function(x, f) {
 #' @param residuals residuals of cosine regression model
 #' @param data original signal used to fit cosine regression
 #'
+#' @export
+#'
 #' @return list with the following elements
 #' \itemize{
 #'   \item coefficients. A matrix of parameters, the three columns are: 1. amplitude 2. phase, and 3. frequency.
@@ -91,17 +95,4 @@ fitted.swdft_mod <- function(x, ...) {
 #'
 residuals.swdft_mod <- function(x, ...) {
   x$residuals
-}
-
-#' Plot method for swdft_cosreg object
-#'
-#' @param x A swdft_cosreg object
-#' @param y not used, but required by plot generic function
-#'
-plot.swdft_mod <- function(x, y, ...) {
-  N <- length(x$data)
-  t <- 0:(N-1)
-  plot(t, x$data, main="Fitted values for swdft_mod objects", xlab="", ylab="", pch=19)
-  lines(t, x$data)
-  lines(t, x$fitted, col="red", lty=2)
 }

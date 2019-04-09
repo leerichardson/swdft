@@ -2,30 +2,42 @@
 % Please edit documentation in R/swdft.R
 \name{swdft}
 \alias{swdft}
-\title{Sliding Window Discrete Fourier Transform (SWDFT)}
+\title{Sliding Window Discrete Fourier Transform}
 \usage{
-swdft(x, n, type = "fftw", normalize = 1)
+swdft(x, n, type = "fftw", pad = TRUE, taper_type = "none", p = 0.1,
+  smooth = "none", m = 2, num_convs = 1)
 }
 \arguments{
 \item{x}{real or complex vector}
 
 \item{n}{integer window size.}
 
-\item{type}{algorithm to implement. defaults to "fftw"}
+\item{type}{algorithm to implement. defaults to "fftw", other option 'fft' for R's base FFT function.
+R's base fft function is used if}
 
-\item{normalize}{how to scale SWDFT coefficients. Defaults
-to unnormalized (1), but many definitions include either
-(1 / n) or (1 / sqrt(n))}
+\item{pad}{optionally zero-pad the array to that the output
+array has the same dimension as the original time-series}
+
+\item{p}{Proportion to be tapered at each end of the series. Argument
+copied from the spec.taper function in the default stats package. Defaults to .1.}
+
+\item{smooth}{Type of smoother. Defaults to 'none', can also be 'daniell' or 'modified daniell'.
+If smooth is 'none', then the SWDFT returns the smoothed squared modulus coefficients, not the  complex numbers}
+
+\item{m}{width of kernel. Defaults to 2}
+
+\item{num_convs}{Number of times to convolve the kernel. Defailts to 1}
+
+\item{taper}{type of taper for each window position. defaults to 'none', can also be 'cosine'.}
 }
 \value{
-n x P array, where P = length(x) - n + 1
+An S3 'swdft' object. See ?new_swdft for details.
 }
 \description{
-Sliding Window Discrete Fourier Transform (SWDFT)
+Sliding Window Discrete Fourier Transform
 }
 \examples{
 x <- rnorm(n = 20)
 a <- swdft(x, n = 2^3)
-
 
 }

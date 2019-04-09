@@ -4,12 +4,14 @@
 \alias{swdft_fft}
 \title{Sliding Window Discrete Fourier Transform with base R}
 \usage{
-swdft_fft(x, n)
+swdft_fft(x, n, taper)
 }
 \arguments{
 \item{x}{real or complex vector}
 
-\item{n}{window size}
+\item{n}{integer window size.}
+
+\item{taper}{type of taper for each window position. defaults to 'none', can also be 'cosine'.}
 }
 \value{
 n x P array, where P = length(x) - n + 1

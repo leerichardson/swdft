@@ -1,10 +1,10 @@
 #' Covariance between two complex-numbered outputs
 #'
-#' @param k
-#' @param l
-#' @param delta
-#' @param n
-#' @param sigma
+#' @param k frequency of first coefficient
+#' @param l frequency of second coefficient
+#' @param delta window position shift of second coefficient
+#' @param n window size
+#' @param sigma white noise standard error
 #'
 #' @return complex-valued number of the covariance
 #'

@@ -4,7 +4,9 @@
 #' @param n0 window size in row direction
 #' @param n1 window size in column direction
 #' @param type algorithm to implement. defaults to "fftw", other option 'fft' for R's base FFT function.
-#' R's base fft function is used if
+#' R's base fft function is used if 'fftwtools' library is not installed.
+#'
+#' @export
 #'
 #' @return An S3 'swdft2d' object. See ?new_swdft for details.
 #'

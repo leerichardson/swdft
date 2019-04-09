@@ -65,7 +65,6 @@ local_cosreg <- function(x, lmin=6, pwidth=5, kwidth=1, verbose=FALSE) {
 #' @param fitted fitted values of cosine regression model
 #' @param residuals residuals of cosine regression model
 #' @param data original signal used to fit cosine regression
-#' @param
 #'
 #' @return list with the following elements
 #' \itemize{
@@ -130,8 +129,8 @@ get_p_range <- function(phat, n, N, pwidth, type="around_max") {
 
 #' Extract signal parameters
 #'
-#' @param n
-#' @param p
+#' @param n window size
+#' @param p window position
 #'
 get_sl <- function(n, p) {
   L <- n
@@ -141,11 +140,11 @@ get_sl <- function(n, p) {
 
 #' Log Likelihood
 #'
-#' @param f
-#' @param x
-#' @param S
-#' @param L
-#' @param ftype
+#' @param f frequency
+#' @param x signal
+#' @param S start parameter
+#' @param L length pe
+#' @param ftype what to return
 #'
 lcr_loglik <- function(f, x, S, L, ftype="full") {
   A_Phi <- swdft::get_aphi(x=x, S=S, L=L, f=f)
@@ -166,10 +165,7 @@ lcr_loglik <- function(f, x, S, L, ftype="full") {
 
 #' Extract amplitude and phase
 #'
-#' @param x
-#' @param f
-#' @param S,
-#' @param L
+#' @inheritParams lcr_loglik
 #'
 get_aphi <- function(x, S, L, f) {
   N <- length(x)
@@ -188,9 +184,9 @@ get_aphi <- function(x, S, L, f) {
 
 #' Extract estimator of sigma
 #'
-#' @param x
-#' @param fitted
-#' @param N
+#' @param x signal
+#' @param fitted fitted values
+#' @param N length of x
 #'
 get_sigma <- function(x, fitted, N) {
   sqrt((1 / N) * sum( (x - fitted)^2 ))
@@ -198,10 +194,8 @@ get_sigma <- function(x, fitted, N) {
 
 #' Compute the log likelihood
 #'
-#' @param x
-#' @param fitted
-#' @param sigma
-#' @param N
+#' @param sigma estimated standard deviation
+#' @inheritParams get_sigma
 #'
 get_loglik <- function(x, fitted, sigma, N) {
   sum_val <- (-1 / (2 * sigma^2)) * sum( (x - fitted)^2 )

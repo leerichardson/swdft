@@ -1,8 +1,9 @@
-#' Sliding Window Discrete Fourier Transform (SWDFT)
+5#' Sliding Window Discrete Fourier Transform
 #'
 #' @param x real or complex vector
 #' @param n integer window size.
-#' @param type algorithm to implement. defaults to "fftw", other option 'fft' for R's base FFT function
+#' @param type algorithm to implement. defaults to "fftw", other option 'fft' for R's base FFT function.
+#' R's base fft function is used if
 #' @param pad optionally zero-pad the array to that the output
 #' array has the same dimension as the original time-series
 #' @param taper type of taper for each window position. defaults to 'none', can also be 'cosine'.
@@ -46,7 +47,8 @@ swdft <- function(x, n, type="fftw", pad=TRUE, taper_type='none', p=.1, smooth='
   if (smooth != 'none') { a <- swdft::smooth_swdft(a=a, ktype=smooth, m=m, num_convs=num_convs) }
 
   ## Return a 'swdft' S3 object
-  swdft_obj <- swdft::new_swdft(a=a, x=x, n=n, type=type, pad=pad, taper_type=taper_type, taper=taper, p=p, smooth=smooth, m=m, num_convs=num_convs)
+  swdft_obj <- swdft::new_swdft(a=a, x=x, n=n, type=type, pad=pad, taper_type=taper_type,
+                                taper=taper, p=p, smooth=smooth, m=m, num_convs=num_convs)
   return( swdft_obj )
 }
 
@@ -68,14 +70,13 @@ swdft <- function(x, n, type="fftw", pad=TRUE, taper_type='none', p=.1, smooth='
 #' @return list w/ the same elements as the arguments, an S3 object of class 'swdft'
 #'
 new_swdft <- function(a, x, n, type, pad, taper_type, taper, p, smooth, m, num_convs) {
-  structure(list(a=a, x=x, n=n, type=type, pad=pad, taper=taper, p=p, smooth=smooth, m=m, num_convs=num_convs), class="swdft")
+  structure(list(a=a, x=x, n=n, type=type, pad=pad, taper_type=taper_type, taper=taper, p=p,
+                 smooth=smooth, m=m, num_convs=num_convs), class="swdft")
 }
 
 #' Sliding Window Discrete Fourier Transform with base R
 #'
-#' @param x real or complex vector
-#' @param n window size
-#' @param taper
+#' @inheritParams swdft
 #'
 #' @return n x P array, where P = length(x) - n + 1
 #'
@@ -93,9 +94,7 @@ swdft_fft <- function(x, n, taper) {
 
 #' Sliding Window Discrete Fourier Transform using fftw
 #'
-#' @param x real or complex vector
-#' @param n window size
-#' @param taper
+#' @inheritParams swdft
 #'
 #' @return n x P array, where P = length(x) - n + 1
 #'

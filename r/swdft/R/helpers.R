@@ -1,0 +1,27 @@
+#' Phase unwrapping
+#'
+#' @param p vector of phases fit by demodulation
+#'
+unwrap_phase <- function(p) {
+  pdiff <- diff(p, na.rm=TRUE)
+  pd_no_nas <- pdiff
+  pd_no_nas[is.na(pdiff)] <- 0
+
+  p_no_nas <- p
+  p_no_nas[is.na(p)] <- 0
+
+  p[] <- cumsum(c(p_no_nas[1], pd_no_nas - round(pd_no_nas)))
+  return(p)
+}
+
+#' Convert the SWDFT to proportions of frequency
+#'
+#' @param a swdft
+#'
+swdft_to_props <- function(a) {
+  n <- nrow(a)
+  m <- floor(n / 2)
+  if (class(a[1, 1]) == "complex") { amod <- Mod(a)^2 }
+
+  return( apply(X=amod[2:m, ], MARGIN=2, FUN=function(x) x / sum(x)) )
+}

@@ -1,11 +1,11 @@
 #' Dirichlet Kernel (Weight) for arbitrary summation indices
 #'
-#' @param
-#' @param
-#' @param
-#' @param
+#' @param x numeric to evaluate
+#' @param phase defaults to 0
+#' @param a start of summation index
+#' @param b end of summation index
 #'
-#' @return
+#' @return sum of a complex exponential sum
 #'
 dirichlet <- function(x, phase=0, a=0, b=length(x)-1) {
   i <- complex(length.out=1, real=0, imaginary=1)

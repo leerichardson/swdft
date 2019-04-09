@@ -11,6 +11,8 @@
 #' a moving average filter is used. Otherwise, never used.
 #' @param window_size defaults to NULL, only used when match_swdft=TRUE, so can ignore.
 #'
+#' @export
+#'
 #' @return An S3 'swdft_demod' object. See ?new_swdft_matching_demod for details.
 #'
 #' @references Chapter 7 of 'Fourier Analysis of Time-Series' by Peter Bloomfield
@@ -81,6 +83,8 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
 #' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
 #' @param passfreq numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0
 #'
+#' @export
+#'
 #' @return list with the following elements
 #' \itemize{
 #'   \item coefficients. A matrix of parameters, the three columns are: 1. amplitude 2. phase, and 3. frequency.
@@ -113,6 +117,8 @@ new_swdft_demod <- function(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, orde
 #' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
 #' @param passfreq numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0
 #' @param debug. Logical. Whether to print out intermediate output.
+#'
+#' @export
 #'
 #' @return An S3 'swdft_matching_demod' object. See ?new_swdft_matching_demod for details.
 #'
@@ -215,6 +221,8 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
 #' @param resids Residuals for each iteration
 #' @param fits Fitted values for each iteration
 #' @param return_rows Logival vector indicating which iterations occured. Used for subsetting.
+#'
+#' @export
 #'
 #' @return list with the following elements
 #' \itemize{
