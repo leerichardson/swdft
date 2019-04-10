@@ -128,5 +128,5 @@ plot.swdft_mod <- function(x, y=NULL) {
   t <- 0:(N-1)
   graphics::plot(t, x$data, main="Fitted values for 'swdft_mod' object", xlab="", ylab="", pch=19)
   graphics::lines(t, x$data)
-  graphics::lines(t, x$fitted, col="red", lty=2)
+  graphics::lines(t, x$fitted, col="red", lty=1)
 }
