@@ -5,7 +5,7 @@
 #' @param smooth character. Type of smoothing to use, accepts either 'ma', 'double_ma',
 #' or 'butterworth' (the default)
 #' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
-#' @param passfreq_scale numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2,
+#' @param passfreq numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to .1
 #' which corresponds to a pass frequency of 2 * f0.
 #' @param match_swdft logical. Only used to demonstrate equivalence w/ SWDFT when
 #' a moving average filter is used. Otherwise, never used.
@@ -18,7 +18,7 @@
 #' @references Chapter 7 of 'Fourier Analysis of Time-Series' by Peter Bloomfield
 #' The following blog-post for the idea of a butterworth filter: #' https://dankelley.github.io/r/2014/02/17/demodulation.html
 #'
-complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2, match_swdft=FALSE, window_size=NULL) {
+complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq=.1, match_swdft=FALSE, window_size=NULL) {
   N <- length(x)
   t <- 0:(N-1)
 
@@ -48,7 +48,7 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
 
   } else if (smooth == "butterworth") {
-    filter <- signal::butter(n=order, W=passfreq_scale*f0, type="low")
+    filter <- signal::butter(n=order, W=passfreq, type="low")
     re_smooth <- signal::filtfilt(filt=filter, Re(y))
     im_smooth <- signal::filtfilt(filt=filter, Im(y))
     y_smooth <- complex(real=re_smooth, imaginary=im_smooth)
@@ -65,7 +65,7 @@ complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq_scale=2
   ## Return a 'swdft_demod' S3 object
   swdft_demod_obj <- new_swdft_demod(x=x, f0=f0, A_t=A_t, Phi_t=Phi_t, fitted=fitted, y=y,
                                             y_smooth=y_smooth, smooth=smooth, order=order,
-                                            passfreq=passfreq_scale*f0)
+                                            passfreq=passfreq)
   return( swdft_demod_obj )
 }
 
@@ -111,15 +111,15 @@ new_swdft_demod <- function(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, orde
 #' @param smooth character. Type of smoothing to use, accepts either 'ma', 'double_ma',
 #' or 'butterworth' (the default)
 #' @param order moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5
-#' @param passfreq_scale numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0
+#' @param passfreq numeric scalar. Pass frequency used in butterworth low-pass filter. defaults to .1
 #' @param debug Logical. Whether to print out intermediate output.
 #'
 #' @export
 #'
 #' @return An S3 'swdft_matching_demod' object. See ?new_swdft_matching_demod for details.
 #'
-matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5, passfreq_scale=2, debug=FALSE) {
-  # --- Generate arrays and vectors to store the final results ---
+matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth", order=5, passfreq=.1, debug=FALSE) {
+  # --- Generate arrays and vectors to store the final results --
   N <- length(x)
   demods <- list(y=array(data=NA_real_, dim=c(max_cycles, N)), y_smooth=array(data=NA_real_, dim=c(max_cycles, N)))
   amps <- array(data=NA_real_, dim=c(max_cycles, N))
@@ -166,7 +166,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
     if (smooth == "ma") {
       khat_demod <- complex_demod(x=x, f0=f0, smooth='ma', order=order)
     } else if (smooth == "butterworth") {
-      khat_demod <- complex_demod(x=x, f0=f0, smooth='butterworth', passfreq_scale=passfreq_scale*f0)
+      khat_demod <- complex_demod(x=cycle_resids, f0=f0, smooth='butterworth', passfreq=passfreq)
     } else {
       stop("filter must be 'ma' or 'butterworth'")
     }
@@ -186,14 +186,14 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
     resids[cycle, ] <- cycle_resids
     fits[cycle, ] <- khat_demod$fitted
     freqs <- c(freqs, f0)
-    passfreqs <- c(passfreqs, passfreq_scale * f0)
+    passfreqs <- c(passfreqs, passfreq)
 
     ## Optionally plot the current fit and SWDFT of the resids
     if (debug == TRUE) {
       graphics::par(mfrow=c(2, 1))
       graphics::plot(x=x, cex=.4, pch=19)
       graphics::lines(fitted, lwd=2, col="red")
-      plot(x=a_debug, freq_type="angular", col="tim.colors")
+      plot(x=a_debug, freq_type="fraction", col="tim.colors")
       graphics::par(mfrow=c(1, 1))
     }
   }
@@ -226,8 +226,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
 #'
 #' @return list with the following elements
 #' \itemize{
-#'   \item coefficients. A matrix of parameters, the three columns are: 1. amplitude 2. phase, and 3. frequency.
-#'   There is only more that one row used when multiple frequencies are fit sequentially.
+#'   \item coefficients. coefficients from the R local signals with time-varying ampltidue and phase model.
 #'   \item fitted. fitted values of cosine regression model
 #'   \item residuals. residuals of cosine regression model
 #'   \item data. original signal used to fit cosine regression
@@ -240,7 +239,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="ma", order=5,
 new_swdft_matching_demod <- function(x, n, fitted, thresh, max_cycles, smooth, order, passfreqs,
                                      maxvals, freqs, amps, phases, demods, cycle, resids, fits,
                                      return_rows) {
-  structure(list(coefficients=list(f0=freqs, inst_amp=amps[return_rows, ], inst_phase=phases[return_rows, ]),
+  structure(list(coefficients=list(R=cycle, f0=freqs, inst_amp=amps[return_rows, ], inst_phase=phases[return_rows, ]),
                  fitted=fitted,
                  residuals=x-fitted,
                  data=x,

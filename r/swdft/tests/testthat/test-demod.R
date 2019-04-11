@@ -30,16 +30,15 @@ test_that("Complex demodulation matches SWDFT w/ moving average filter", {
 
 test_that("Matching demodulation works", {
   # --- Generate noiseless local cosine signal ---
-  set.seed(224)
   N <- 40
   n <- 16
   window_size <- 5
   x <- swdft::local_signal(N=N, A=1, Fr=2/n, phase=0, S=5, L=30)
 
   ## Run matching demodulation algorithm on the local periodic signal
-  x_matching_demod <- swdft::matching_demod(x=x, n=n, thresh=.1, passfreq_scale=2, debug=FALSE)
+  x_matching_demod <- swdft::matching_demod(x=x, n=n)
 
-  ## Run various tests on the output
+  ## Run various tests on the outptu
   expect_true(all(abs(x_matching_demod$residuals) < 1))
   expect_true(all(class(x_matching_demod) == c("swdft_matching_demod", "swdft_demod", "swdft_mod")))
 })
