@@ -2,7 +2,7 @@
 #'
 #' @param x Object of class 'swdft'. If x$a is complex-valued, it is converted to the squared
 #' modulus. If x$a is real-valued, then we assume that it represents the squared
-#' @param freq_type Specify how to display the frequency axis. Either 'cycles' (default), 'angular', or 'hertz'
+#' @param freq_type Specify how to display the frequency axis. Either 'cycles' (default), 'fraction', or 'hertz'
 #' @param fs sample rate. Used if freq_type='hertz'
 #' @param hertz_range integer vector, given by (low, high). Specifies the range of hertz to display and
 #' is only used when freq_type='hertz'
@@ -77,7 +77,7 @@ plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
       a <- a[freq_inds, ]
     }
 
-  } else if (freq_type == "angular") {
+  } else if (freq_type == "fraction") {
     ## Only keep frequencies between 0 and .5
     freqs <- freqs / n
     freq_inds <- which(freqs <= .5)
@@ -88,7 +88,7 @@ plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
     if (ylab == "Frequency (Cycles/Window)") { ylab <- "Frequency" }
 
   } else if (freq_type != "cycles") {
-    stop("freq_type must be 'cycles', 'hertz', or 'angular'")
+    stop("freq_type must be 'cycles', 'hertz', or 'fraction'")
   }
 
   ## Optionally determine the color of swdft output
