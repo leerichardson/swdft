@@ -1,5 +1,5 @@
 ---
-title: "The Sliding Window DFT Package"
+title: "The swdft Package"
 author: "Lee Richardson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -18,13 +18,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `swdft` package implements the methodology developed in \cite{}. The package provides functions to analyze data with periodic components, and the functions can be partitioned into three groups:
+The `swdft` package provides tools to analyze data with non-stationary periodic components. We named the package `swdft` because most functions use the Sliding Window Discrete Fourier Transform (SWDFT) as a building block. Quickly described, the SWDFT extends the discrete Fourier transform (DFT) from the frequency domain to the time-frequency domain. Whereas the DFT operates on the entire signal, the SWDFT takes a temporally ordered sequence of smaller DFTs on contiguous subsets of the signal. The SWDFT outputs a 2D complex array of coefficients, where the first dimension represents frequency, and the second dimension represents time. The SWDFT is widely used across science and engineering, so providing a straightforward implementation of the SWDFT and related functions fills a gap in the R landscape.
 
-1. **The sliding window discrete Fourier transform (SWDFT)**. Implements the SWDFT and provides graphical tools to visualizae the output. 
+The functions we provide in the `swdft` package can be partitioned into three groups:
+
+1. **The SWDFT**. Implements the SWDFT and provides tools to visualize the output. 
 2. **Cosine regression**. Fits cosine functions to data using least squares. 
-3. **Complex demodulation**. Fits cosine functions with time-varying amplitudes and phases to data using _complex demodulation_.
+3. **Complex demodulation**. Fits cosine functions with time-varying parameters using _complex demodulation_. 
 
-This vignette details how to the main functionality and use cases for each of these three groups. Before working through the examples, make sure that the package is loaded in memory:
+This vignette walks through the main functionality of each group. Before working through the examples, make sure you have the package loaded into memory.  
 
 ```{r, include=FALSE}
 devtools::load_all("/home/lee/Dropbox/swdft/r/swdft")
@@ -34,8 +36,8 @@ devtools::load_all("/home/lee/Dropbox/swdft/r/swdft")
 library(swdft)
 ```
 
-## The Sliding Window DFT
-The sliding window DFT is useful for signals with non-stationary periodic components. So, we demonstrate the functionality of the `swdft` package using a "local cosine signal". A local cosine signal is simply a cosine signal multipled by an indicator function, and is defined by
+## The SWDFT
+The sliding window DFT (SWDFT) is useful for signals with non-stationary periodic components. So, to demonstrate the functionality of the `swdft` package, we use "local cosine signals" for data. A local cosine signal is simply a cosine function multiplied by an indicator, where the indicator function is only nonzero for a contiguous subset of the signal. Formally, a length $N$ local cosine signal is defined by 
 
 $$
 \begin{eqnarray}
@@ -43,14 +45,22 @@ $$
   t &=& 0, 1, \ldots, N - 1.
 \end{eqnarray}
 $$
-You can generate a local cosine signal using the `swdft::local_signal` function. This vignette also adds a small Gaussian noise factor to the local signal
+
+The parameters of a local cosine signal are:
+
+- A: Amplitude of the cosine function 
+- f: Frequency of the cosine function 
+- $\phi$: Phase of the cosine function 
+- $S$: Start of the local cosine signal 
+- $L$: Length of the local cosine signal 
+
+You can generate a local cosine signal with the `?swdft::local_signal` function. In this example, we also add a small Gaussian noise factor:
 
 ```{r}
 ## Generate a local periodic signal + Gaussian noise 
 set.seed(999)
 signal_length <- 96
-window_size <- 32
-freq <- 3 / window_size 
+freq <- 3 / 32
 amplitude <- 1
 phase <- 0
 sigma <- .3
@@ -62,13 +72,21 @@ signal <- swdft::local_signal(N=signal_length, A=amplitude,
 noise <- rnorm(n=signal_length, mean=0, sd=sigma)
 x <- signal + noise 
 
+## Plot what the local cosine signal 
 plot(x, pch=19, cex=1.4, xlab="", ylab="Signal", 
      main="Local Cosine Signal plus Gaussian Noise")
 lines(signal, lwd=2, col="red")
 ```
 
 ### The SWDFT
-The `swdft::swdft` function is the building block of this package. My goal was creating a function similar to base R's `stats::fft`  for the time-frequency case. The `swdft::swdft` implements the sliding window discrete Fourier transform (SWDFT), which is defined as 
+The cornerstone of this package is the `swdft::swdft` function. When I wrote this function, my goal was creating a function analagous to base R's `stats::fft` function for the time-frequency case. By this, I mean a simple, easy to use function, that provides the 2D SWDFT coefficients, and not a lot more. The `swdft::swdft` function is called with 
+
+```{r}
+window_size <- 32
+a <- swdft::swdft(x=x, n=window_size)
+```
+
+The `swdft::swdft` function implements the SWDFT, which is defined by
 
 $$
 \begin{eqnarray}
@@ -78,10 +96,17 @@ $$
 \end{eqnarray}
 $$
 
+where $n$ is the window size, and $N$ is the signal length, and $\omega_n = \cos(\frac{2 \pi}{n}) + i \sin(\frac{2 \pi}{n})$. The SWDFT outputs a 2D $n \times P$ complex-valued array of coefficients, where the $n$ dimension corresponds to frequency, and the $P = N - n + 1$ dimension corresponds to window position. For visualization, covered in the next section, it is common to display the squared modulus of the SWDFT coefficients, which is defined by
 
-where $n$ is the window size, and $N$ is the signal length, and $\omega_n = \cos(\frac{2 \pi}{n}) + i \sin(\frac{2 \pi}{n})$. The output of the SWDFT is a 2D complex-valued array. For visualization, covered in the next section, it is common to view the squared modulus of SWDFT coefficients, which defined by $Mod(a_{k, p})^2 = Re(a_{k, p})^2 + Im(a_{k, p})^2$, which is implemented in R by the `Mod(a)^2` function. 
+$$
+\begin{eqnarray}
+  Mod(a_{k, p})^2 &=& Re(a_{k, p})^2 + Im(a_{k, p})^2
+\end{eqnarray}
+$$
 
-The implementation of the SWDFT is simple enough that it's easy to understand by looking at the code:
+In R, you can compute the modulus of a complex number with the `?Mod` function. 
+
+The implementation of the SWDFT is straightforward, and can be understood by simply looking at the code:
 
 ```{r, eval=FALSE}
 swdft_fft <- function(x, n, taper) {
@@ -97,17 +122,15 @@ swdft_fft <- function(x, n, taper) {
 }
 ```
 
-The actual `swdft::swdft` function is a wrapper function, which calls either `swdft_fftw` or `swdft_fft`, depending on if the `fftwtools` library is installed. The `fftwtools` package is a wrapper for the Fastest Fourier Transform in the West (FFTW) library, so it is much faster than base R's `fft` implementation. 
+The actual implementation of the `swdft::swdft` function is a wrapper, which calls either `swdft_fftw` or `swdft_fft`, depending on if the `fftwtools` library is installed. The `fftwtools` package is an R-wrapper for the Fastest Fourier Transform in the West (FFTW) library, so it is much faster than base R's `fft` implementation.
 
-The `swdft::swdft` function returns an S3 object of class `swdft`. This class includes the 2D complex array of SWDFT coefficients, along with additional information about the parameters (see `?new_swdft` for more information). We include a `plot.swdft` method that displays the squared modulus of SWDFT coefficients:
+The `swdft::swdft` function returns an S3 object of class `swdft`. This class includes the 2D complex array of SWDFT coefficients (`a$a`), along with basic information about the parameters used (see `?new_swdft` for more information). We provide a `plot.swdft` method that displays the squared modulus of SWDFT coefficients:
 
 ```{r}
-## Take the SWDFT of the local signal, then plot the output 
-a <- swdft::swdft(x=x, n=window_size)
 plot(a)
 ```
 
-In the next section, we detail the main options available to customize visualizations of the SWDFT.
+In the next section, we detail the options available for customizing visualizations of the SWDFT. 
 
 ### Visualization
 The default color used in `?plot.swdft` is grayscale. However, I often use the blue-to-red colorscale `tim.colors` from the `fields` package. You can replace the grayscale colorscale with `tim.colors` with the option `col="tim.colors"`:
@@ -116,22 +139,22 @@ The default color used in `?plot.swdft` is grayscale. However, I often use the b
 plot(a, col="tim.colors", title="SWDFT using the 'tim.colors' colorscale")
 ```
 
-Often, we need to display the frequency dimension in different units, such as Hertz. For a SWDFT with length $n$ windows, the $k^{th}$ frequency can be interpreted as "$k$ complete cycles in a length $n$ period of time". Hence, the default plot sets `freq_type="cycles"`, and the frequency dimension is indexed by the $k$ SWDFT coefficients. Another popular approach is Hertz, which can be used with the `freq_type="hertz"` option. If you use Hertz, you also need to specify the sampling frequency with the `fs=` option, for example:
+Often, we need to display the frequency dimension in different units, such as Hertz. For a SWDFT with length $n$ windows, the $k^{th}$ frequency can be interpreted as "$k$ complete cycles in a length $n$ period of time". Hence, the default in `plot.swdft` sets `freq_type="cycles"`, and using this option, the frequency dimension is indexed by the $k$ SWDFT coefficients. Another popular approach is Hertz, which can be used with the `freq_type="hertz"` option. If you use Hertz, you also need to specify the sampling frequency with the `fs=` option, for example:
 
 ```{r}
 sampling_frequency <- 100
 plot(a, freq_type="hertz", fs=sampling_frequency)
 ```
 
-The final frequency unit option is `freq_type="fraction"`. In many fields, it is common to represent the frequency as the decimal value $\frac{k}{n}$, for $k=0, 1, \ldots, n-1$. This type of display is used in base R's `spectrum` plotting method, `plot.spec`. An example of this option is given by:
+The option we provide for frequency units is `freq_type="fraction"`. In many fields, it is common to represent the frequency as the decimal value $\frac{k}{n}$, for $k=0, 1, \ldots, n-1$. This option is used in base R's plotting method for the `spectrum` function, `plot.spec`. An example of this option is given by:
 
 ```{r}
 plot(a, freq_type="fraction")
 ```
 
-When `freq_type="fraction"`, we follow the convention by only displaying the range from 0 to .5. This is a convention because for real-valued signals, the Fourier coefficients larger than .5 are equivalent to the complex conjugate of a Fourier coefficient less than .5. This implies that the values of their squared modulus are identical (this is why, in the previous plots, the frequencies are "aliased" across a horizantal line midway down the frequency axis). 
+When `freq_type="fraction"`, we follow the convention by only displaying the range from 0 to .5. This is a convention because for real-valued signals, the Fourier coefficients larger than .5 are equivalent to the complex conjugate of a Fourier coefficient less than .5. This implies that the values of their squared modulus is identical (this is why, in the previous plots, the frequencies on either side of a horizantal line are identical. Technically speaking, this phenomenon is called "aliasing"). 
 
-Finally, it is sometimes necessary to change either the axis values or labels. For example, maybe you want the x-axis to represent time, instead of the default "Window Position". You can change this using the `custom_xaxis=` option, and there is a corresponding `custom_yaxis` argument for the frequency dimension. To use this option, you need to make sure that the length of the custom axis is the same as the dimension fo the `swdft` object (you can check this with `dim(a$a)`). 
+Finally, you sometimes need to change either the axis labels or values. For example, maybe you want the x-axis to represent time, instead of the default "Window Position". You can change this using the `custom_xaxis=` option (there is a corresponding `custom_yaxis` as well). To use this option, you need to make sure that the length of the custom axis is the same as the dimension fo the `swdft` object (you can check this with `dim(a$a)`). 
 
 ```{r}
 years <- 1900:1995
@@ -141,23 +164,23 @@ plot(a, freq_type="fraction", col="tim.colors", custom_xaxis=years, xlab="Years"
 Those are the options I use most frequently. For details and more options, see the `?plot.swdft` documentation.
 
 ### Tapering and Smoothing
-Discrete Fourier transform (DFT) coefficients are notoriously noisy. From a technical perspective, DFT coefficients to not give a consistent estimate of the spectral density. Statisticians have solved this issue by eiehter *tapering* the ends of the signal, or smoothing the DFT coefficients, and the `swdft` package provides options for both tapering and smoothing. 
+Discrete Fourier transform (DFT) coefficients are notoriously noisy. From a technical perspective, DFT coefficients do not provide a consistent estimate of the spectral density. Statisticians have solved this issue by either *tapering* the ends of the signal, or smoothing the DFT coefficients, and the `swdft` package provides options for both tapering and smoothing. 
 
-For tapering, we provide the widely used cosine bell taper, based on R's `spec.taper` function. You can taper the SWDFT coefficients with a cosine bell taper with the `taper_type="cosine"` option. In addition, you can specify the proportion of each end of the input to taper using the `p=` option. An example of this is given by
+For tapering, we provide the widely used cosine bell taper, based on R's `spec.taper` function. You can use this taper with the `taper_type="cosine"` option. In addition, you can specify the proportion of each end of the signal to taper with the `p=` option. An example of this is given by
 
 ```{r}
 a_taper <- swdft::swdft(x=x, n=window_size, taper_type="cosine", p=.2)
 plot(a_taper)
 ```
 
-To smooth the SWDFT coefficients, we provide the `smooth=` option. This option builds a smoothing kernel using base R's `stats::kernel` function. The addition option `m=` controls the width of the kernel, and the option `num_convs=` specicies the number of times the kernel is convolved with itself. See `?stats::kernel` for more details. An example of smoothing the SWDFT coefficients is given by 
+To smooth the SWDFT coefficients, we provide the `smooth=` option. This option builds a smoothing kernel using base R's `stats::kernel` function. The additional option `m=` controls the width of the kernel, and the option `num_convs=` specicies the number of times the kernel is convolved with itself. See `?stats::kernel` for more details. An example of smoothing the SWDFT coefficients is given by 
 
 ```{r}
 a_smooth <- swdft::swdft(x=x, n=window_size, smooth="daniell", m=1, num_convs=0)
 plot(a_smooth)
 ```
 
-It is important to point out that the most widely used tapering approach is to use multiple tapers, which is often referred to as the *Multitaper* method. The `swdft` package does not provide an implementation of the multitaper method, but I would be willing to if there's significant interest. For an implementation, see the excellent `multitaper` R package developed by Karim Rahim. 
+It is important to point out that the most widely used tapering approach is to use multiple tapers, which is often referred to as the *Multitaper* method. The `swdft` package does not provide an implementation of the multitaper method, but I would be willing to if there's significant interest. For an implementation, see the excellent `multitaper` R-package. 
 
 ## Cosine Regression
 One of the most widely used models in statistical signal processing fits a cosine function to data, which we call *cosine regression*. Cosine regression is helpful for signals with obvious daily, weekly, or yearly trends that are stable over time. Formally, the cosine regression statistical model is given by 
@@ -175,9 +198,7 @@ The cosine regression model has three parameters to estimate:
 - f: Frequency 
 - $\phi$: Phase 
 
-There is a standard trick that uses trigonometric identities to "linearize" the cosine regression model in terms of amplitude and phase. After applying this trick, if the frequency parameter $f$ is known, you can estimate amplitude and phase with least squares. The `swdft` package provides the `cosreg` function that fits the cosine regression mode, given that the frequency of interest is provided. 
-
-The `swdft` package provides the `cosreg` function to fit a cosine function of a specified frequency to data. For example, we can fit a cosine function of to our local signal generated above
+There is a standard trick that uses trigonometric identities to "linearize" the cosine regression model in terms of amplitude and phase. After applying this trick, if the frequency parameter $f$ is known, you can estimate amplitude and phase with least squares. The `swdft::cosreg` function fits a the cosine regression model, given a frequency as input. For example, we can apply cosine regression to out local cosine signal generated above:
 
 ```{r}
 cosreg_fit <- swdft::cosreg(x=x, f=freq)
@@ -190,18 +211,28 @@ We can check that the coefficients of the cosine regression model with
 coefficients(cosreg_fit)
 ```
 
+If you don't know which frequency to use, it is common to select it from the maximum of the periodogram, which can be done by:
+
+```{r}
+periodogram <- Mod(fft(x))^2
+freqs <- (0:(length(x) - 1)) / length(x)
+max_freq <- freqs[which.max(periodogram)]
+cat("Estimated Frequency: ", max_freq, " True Frequency: ", freq, " \n")
+```
+
 ### Local Cosine Regression 
-For signals that are not periodic over the entire interval, but appear in short "bursts", we provide the `local_cosreg` function. This function implements a fairly complicated estimation procedure to estimate the parameters of the local cosine signal defined above. 
+For signals that are not periodic over the entire interval, such as the local cosine signal generated above, we provide the `swdft::local_cosreg` function. This function implements a fairly complicated maximum likelihood estimation procedure to estimate the parameters of the local cosine signal defined above:
 
 ```{r, cache=TRUE}
 local_cosreg_fit <- swdft::local_cosreg(x=x)
 plot(local_cosreg_fit)
+coefficients(local_cosreg_fit)
 ```
 
-Unfortunately, this function takes awhile to run, and should only be used for small signals (e.g. 100/200 data-points). A faster set of methods that works for more complicated signals, called *complex demodulation*, is covered in the next section.
+Unfortunately, this function takes awhile to run, and should only be used for small signls (e.g. 100/200 data-points). Faster methods that work for more complicated signals, based on the method of _complex demodulation_, are covered in the next section. 
 
-## Demodulation
-The third group of functions provided by the `swdft` package is based on the method of complex demodulation. Complex demodulation can be seen as an estimator for for the time-varying amplitude and phase of the following statistical model
+## Complex Demodulation
+The third group of functions provided by the `swdft` package is based on the method complex demodulation. Complex demodulation can be seen as an estimator for the time-varying amplitude and phase of the following statistical model 
 
 $$
 \begin{eqnarray}
@@ -211,7 +242,9 @@ $$
 $$
 The only difference between this model and the cosine regression model is that the amplitude and phase parameters are now time-varying (e.g. $A \to A_t$, $\phi \to \phi_t$).
 
-The `swdft` package provides two functions based on complex demodulation: `complex_demod`, and `matching_demod`. Because complex demodulation is useful for signals with time-varying parameters, the examples in this section use a cosine signal with a time-varying amplitude, generated with the following code:
+The `swdft` package provides two functions based on complex demodulation: `swdft::complex_demod`, and `swdft::matching_demod`. Since `swdft::matching_demod` repeatedly applies the `swdft::complex_demod` function, we introduce `swdft::complex_demod` first. 
+
+Finally, since complex demodulation is useful for signals with time-varying parameters, we adapt the local cosine signal used in previous sections to have a time-varying amplitude, which is done with the following code:
 
 ```{r}
 set.seed(666)
@@ -241,22 +274,20 @@ lines(signal, lwd=2, col="red")
 ```
 
 ### Complex Demodulation
-Complex demodulation extracts a time-varying amplitude and phase from a signal, and works in three steps
+Complex demodulation extracts a time-varying amplitude and phase from a signal. The method works in three steps
 
 1. Demodulate the original series: $y_t = x_t \cdot e^{-2 \pi i f_0 t}$
 2. Smooth the demodulated series: $z_t = \text{smooth}(y_t)$ using a low-pass filter 
 3. Extract $A_t$ and $\phi_t$ from the smoothed, complex-valued signal $z_t$
 
-So, to use the `complex_demod` function, users must provide two parameters:
+So, to use the `swdft::complex_demod` function, you must provide two parameters:
 
 1. The central frequency to demodulate ($f_0$)
 2. The type of low-pass filter to use, and the parameters of that filter
 
-In our example signal, we know the true frequency, so we use this to demonstate how `complex_demod` works. Sometimes, you will know which frequency to use, for example, if you're analyzing daily, weekly, or monthly cycles. In other cases, users don't know which frequency to use, and want to estimate it from the data. The next function, `matching_demod`, provides an automatic method to select the frequency, based on the largest SWDFT coefficient. 
+We know the true frequency in our example, so that's what we use in this example. In some cases, you will know which frequency to use, for example, if your signal has daily, weekly, or monthly cycles. In other cases, users don't know which frequency to use, and want to estimate it from the data. The next function ``swdft::matching_demod``, provides an automatic method to select the frequency, which we describe in the next section. 
 
-In our example, we know the true frequency (`f_0`), so that's what we use. Users will sometimes know which frequency to use, for example, if they're analyzing daily, weekly, or monthly cycles. In other cases, users don't know the specific frequency they're interested in, and want to estimate it from the data. The next method, `matching_demod`, provides an automatic method to select the frequency, based on the maximum of the SWDFT.
-
-Regarding the low-pass filter, the `complex_demod` function provides three options: butterworth, moving average, and double moving average. It is important to note that step one of complex demodulation shifts the frequency of interest `f0` to zero, which means that all filters are relative to frequency 0. The default filter we use is the Butterworth filter, which is specified with the `smooth="butterworth"` option. The default pass frequency for the butterworth filter is given by the `passfreq=.1` option. An example of `complex_demod` with the default parameters using our example signal generated above is given next:
+Regarding the low-pass filter, the `swdft::complex_demod` function provides three options: butterworth, moving average, and double moving average. It is important to note that step one of complex demodulation shifts the frequency of interest `f0` to zero, which means that all filters are relative to frequency 0. We use the butterworth filter as a default, which is specified with the `smooth="butterworth"` option. The default pass frequency for the butterworth filter is .1, specified by the `passfreq=.1` option. An example of `swdft::complex_demod` with the default parameters is given in the following code
 
 ```{r}
 complex_demod_fit <- swdft::complex_demod(x=x_demod, f0=f0)
@@ -266,7 +297,7 @@ legend("topright", col=c("black", "red", "blue"),
        c("Signal+Noise", "Complex Demodulation", "True Signal"), lwd=1)
 ```
 
-We see that complex demodulation captures the part of the signal with a time-varying amplitude, but overfits the ends. To get smoother estimates, we can reduce the pass frequency in the butterworth filter to .05 using the `passfreq=.05` option
+In the above example, complex demodulation captures the part of the signal with a time-varying amplitude, but overfits the ends. To get smoother estimates, we can reduce the pass frequency in the butterworth filter to .05 using the `passfreq=.05` option
 
 ```{r}
 complex_demod_fit_smoother <- swdft::complex_demod(x=x_demod, f0=f0, passfreq=.05)
@@ -276,8 +307,10 @@ legend("topright", col=c("black", "red", "blue"),
        c("Signal+Noise", "Complex Demodulation", "True Signal"), lwd=1)
 ```
 
+
 ### Matching Demodulation
-Imagine if a signal didn't have a single periodic component, but multiple. In this case, complex demodulation wouldn't be enough. To address this, the `swdft` package provides the `matching_demod` function, which implements the "matching demodulation" algorithm. Matching demodulation can be seen as an estimator for the following statistical model of the sum of $R$ periodic signals with time-varying amplitudes and phases 
+Imagine if a signal didn't have a single periodic component, but multiple. If this were true, then complex demodulation wouldn't be enough. To address this, the `swdft` provides the `swdft::matching_demod` function, which implements the matching demodulation algorithm. Matching demodulation can be seen as an estimator for the following statistical model of the sum of $R$ periodic signals with time-varying amplitudes and phases
+
 $$
 \begin{eqnarray}
     y_t &=& \sum_{r=1}^{R} A_{r, t} \cos(2 \pi f_r t + \phi_{r, t}) + \epsilon_t, \nonumber \\
@@ -285,7 +318,8 @@ $$
 \end{eqnarray}
 $$
 
-To demonstrate how `matching_demod` works, let's add a second signal with a time-varying ampltude to the signal we used in the complex demodulation section
+
+To demonstrate how `matching_demod` works, let's add a second signal with a time-varying ampltude to the example signal used in the previous section:
 
 ```{r}
 ## Generate the time-varying amplitude for the second periodic component 
@@ -311,20 +345,20 @@ lines(signal, col="red", lwd=2)
 lines(signal2, col="blue", lwd=2)
 ```
 
-Matching demodulation is a greedy algorithm that repeatedly applies complex demodulation to a signal until no large SWDFT coefficients remain. Each iteration of matching demodulation has the following steps 
+Matching demodulation is a greedy algorithm that repeatedly applies complex demodulation to a signal until no large SWDFT coefficients remain. Each iteration of matching demodulation has the following three steps
 
 1. Find the largest SWDFT coefficient, and check if it is larger than a threshold. If it's not, stop. If it is, continue to step two. 
-2. Apply complex-demodulation at the frequency corresponding to the SWDFT coefficient in step one. 
-3. Remove the demodulated signal, and return to step one with the residuals of the signal. 
+2. Apply complex-demodulation at the frequency of the SWDFT coefficient from step one 
+3. Remove fitted valued from the complex demodulated model from step two, and return to step one with the residuals. 
 
-In addition to the low-pass filter, matching demodulation requires a few additional parameters. First, because matching demodulation selects the frequency of the largest SWDFT coefficient for complex demodulation, we need to provide a window size for the SWDFT. Next, we need to set a threshold for "how large" a SWDFT coefficient must be for the algorithm to keep iterating. Currently, we set these parameters through trial-and-error for a particular application, but more research in understanding these choices would be valuable. For signals standardized to have mean zero and standard deviation one, a threshold between .03 to .05 has worked well for us. Therefore, we set the default threshold option to `thresh=.05`. With this in mind, you can apply the matching demodulation algorithm as follows 
+Matching demodulation requires a few more parameters than complex demodulation. First, because matching demodulation selects the frequency to demodulate with the largest SWDFT coefficient, we need to provide a window size for the SWDFT. Next, we need to set the threshold for "how large" a SWDFT coefficient must be for the algorithm to keep iterating. I currently set these parameters through trial-and-error for a particular applications, but more research in understanding these choices would be valuable. For signals standardized to have mean zero and standard deviation one, a threshold between .03 to .05 has worked well. Therefore, we set the default threshold with `thresh=.05`. With this in mind, you can apply the matching demodulation algorithm as follows:
 
 ```{r}
 matching_demod_fit <- swdft::matching_demod(x=x_demod, n=70)
 plot(matching_demod_fit)
 ```
 
-The fit looks great, but how does it work? To better understand matching demodulation, we can analyze the `matching_demod_fit` object, which is an S3 object of class `swdft_matching_demod`. The first thing we can do is show the fitted values from complex demodulation in rach iteration, which can be accessed with `matching_demod_fit$iterations$iterfits`:
+The fit looks great, but how does it work? To better understand matching demodulation, we can analyze the `matching_demod_fit` object. This object is an an S3 object with class `swdft_matching_demod`. The first thing we can do is show the fitted values from complex demodulation in each iteration, which can be accessed with `matching_demod_fit$iterations$iterfits`:
 
 ```{r}
 plot(x_demod, cex=1, pch=19, ylim=c(-2, 3), xlab="", ylab="", 
@@ -341,7 +375,7 @@ legend("topright", c("Signal + Noise", "Signal 1", "Signal 2", "Iteration 1", "I
 
 This shows that matching demodulation applies complex demodulation to the second signal (`signal2` in the code chunk above) in the first iteration, and applies complex demodulation to the first signal (`signal` above) in the second iteration. And that's great, because it implies that the matching demodulation algorithm recovers the true data generating process. 
 
-It also can be useful to view the estimated coefficients of the $R$ local time-varying cosine signals model provided at the beginning of this section. We can access the coefficients with `matching_demod_fit$coefficients`. For example, we can visualize the time-varying amplitude for each iteration:
+Another useful visualization is the estimated coefficients from the $R$ local time-varying cosines model, presented at the beginning of this section. We can access the coefficients with `matching_demod_fit$coefficients`. For example, we can visualize the time-varying amplitude in each iteration of the algorithm:
 
 ```{r}
 plot(matching_demod_fit$coefficients$inst_amp[1, ], type="l", lwd=2, col="red", ylim=c(0, 1.5), 
