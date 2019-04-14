@@ -110,8 +110,7 @@ plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
     } else {
       graphics::image(x=windows, y=freqs, z=t(a),
                       col=color, xlab=xlab, ylab=ylab, main=title,
-                      cex.main=cex_main, cex.lab=cex_lab, cex.axis=cex_axis,
-                      zlim=zlim)
+                      cex.main=cex_main, cex.lab=cex_lab, cex.axis=cex_axis)
     }
   } else {
     return("display set to false, 'plot.swdft' runs without errors")
@@ -122,8 +121,13 @@ plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
 #'
 #' @param x A swdft_cosreg object
 #' @param y not used, but required by plot generic function
+#' @param ... optionsal arguments to match the plot generic function
 #'
-plot.swdft_mod <- function(x, y=NULL) {
+#' @export
+#'
+#' @return NULL
+#'
+plot.swdft_mod <- function(x, y=NULL, ...) {
   N <- length(x$data)
   t <- 0:(N-1)
   graphics::plot(t, x$data, main="Fitted values for 'swdft_mod' object", xlab="", ylab="", pch=19)
