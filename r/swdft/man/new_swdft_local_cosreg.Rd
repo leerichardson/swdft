@@ -4,7 +4,8 @@
 \alias{new_swdft_local_cosreg}
 \title{Constructor function for class 'swdft_local_cosreg'}
 \usage{
-new_swdft_local_cosreg(coefficients, fitted, residuals, data, window_params)
+new_swdft_local_cosreg(coefficients, fitted, residuals, data,
+  window_params)
 }
 \arguments{
 \item{coefficients}{matrix of coefficients for cosine regression model}

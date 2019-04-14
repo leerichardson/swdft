@@ -5,7 +5,7 @@
 \title{Complex Demodulation}
 \usage{
 complex_demod(x, f0, smooth = "butterworth", order = 5,
-  passfreq_scale = 2, match_swdft = FALSE, window_size = NULL)
+  passfreq = 0.1, match_swdft = FALSE, window_size = NULL)
 }
 \arguments{
 \item{x}{numeric vector}
@@ -17,7 +17,7 @@ or 'butterworth' (the default)}
 
 \item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
 
-\item{passfreq_scale}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2,
+\item{passfreq}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to .1
 which corresponds to a pass frequency of 2 * f0.}
 
 \item{match_swdft}{logical. Only used to demonstrate equivalence w/ SWDFT when

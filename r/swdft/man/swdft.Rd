@@ -4,8 +4,8 @@
 \alias{swdft}
 \title{Sliding Window Discrete Fourier Transform}
 \usage{
-swdft(x, n, type = "fftw", pad = TRUE, taper_type = "none", p = 0.1,
-  smooth = "none", m = 2, num_convs = 1)
+swdft(x, n, type = "fftw", pad = TRUE, taper_type = "none",
+  p = 0.1, smooth = "none", m = 2, num_convs = 1)
 }
 \arguments{
 \item{x}{real or complex vector}

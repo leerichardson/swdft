@@ -4,12 +4,14 @@
 \alias{plot.swdft_mod}
 \title{Plot method for swdft_mod object}
 \usage{
-\method{plot}{swdft_mod}(x, y = NULL)
+\method{plot}{swdft_mod}(x, y = NULL, ...)
 }
 \arguments{
 \item{x}{A swdft_cosreg object}
 
 \item{y}{not used, but required by plot generic function}
+
+\item{...}{optionsal arguments to match the plot generic function}
 }
 \description{
 Plot method for swdft_mod object

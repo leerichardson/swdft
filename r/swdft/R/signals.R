@@ -41,6 +41,8 @@ prou <- function(n) {
 #' @param Fr Frequency: Number of cycles in a length N period
 #' @param phase phase
 #'
+#' @export
+#'
 #' @return numeric vector with cosine function of x
 #'
 cosine <- function(N, A=1, Fr=1, phase=0) {
@@ -53,6 +55,8 @@ cosine <- function(N, A=1, Fr=1, phase=0) {
 #' @param A Amplitude
 #' @param Fr Frequency: Number of cycles in a length N period
 #' @param phase phase
+#'
+#' @export
 #'
 #' @return numeric vector with sine
 #'

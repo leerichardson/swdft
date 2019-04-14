@@ -47,8 +47,7 @@ or 'butterworth' (the default)}
 \value{
 list with the following elements
 \itemize{
-  \item coefficients. A matrix of parameters, the three columns are: 1. amplitude 2. phase, and 3. frequency.
-  There is only more that one row used when multiple frequencies are fit sequentially.
+  \item coefficients. coefficients from the R local signals with time-varying ampltidue and phase model.
   \item fitted. fitted values of cosine regression model
   \item residuals. residuals of cosine regression model
   \item data. original signal used to fit cosine regression

@@ -4,7 +4,8 @@
 \alias{new_swdft_demod}
 \title{Constructor function for class 'swdft_demod'}
 \usage{
-new_swdft_demod(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, order, passfreq)
+new_swdft_demod(x, f0, A_t, Phi_t, fitted, y, y_smooth, smooth, order,
+  passfreq)
 }
 \arguments{
 \item{x}{numeric vector}

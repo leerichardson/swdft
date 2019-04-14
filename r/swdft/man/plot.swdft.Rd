@@ -16,7 +16,7 @@
 \item{x}{Object of class 'swdft'. If x$a is complex-valued, it is converted to the squared
 modulus. If x$a is real-valued, then we assume that it represents the squared}
 
-\item{freq_type}{Specify how to display the frequency axis. Either 'cycles' (default), 'angular', or 'hertz'}
+\item{freq_type}{Specify how to display the frequency axis. Either 'cycles' (default), 'fraction', or 'hertz'}
 
 \item{fs}{sample rate. Used if freq_type='hertz'}
 

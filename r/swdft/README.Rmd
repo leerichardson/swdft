@@ -26,4 +26,4 @@ install.packages("swdft")
 devtools::install_github("leerichardson/swdft/r/swdft")
 ```
 
-See the vignette titled "The **swdft** Package" for an introduction. 
+See the vignette for an introduction.

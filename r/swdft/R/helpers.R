@@ -1,3 +1,18 @@
+#' Get the maximum DFT coefficient
+#'
+#' @param x numeric vector
+#'
+#' @export
+#'
+#' @return numeric of largest frequency. Will be between 0 and .5
+#'
+get_max_freq <- function(x) {
+  periodogram <- Mod(stats::fft(x))^2
+  freqs <- (0:(length(x) - 1)) / length(x)
+  max_freq <- freqs[which.max(periodogram)]
+  return(max_freq)
+}
+
 #' Simple high pass filter
 #'
 #' @param x the vector or time-series

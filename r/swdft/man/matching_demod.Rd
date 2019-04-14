@@ -4,8 +4,8 @@
 \alias{matching_demod}
 \title{Matching Demodulation}
 \usage{
-matching_demod(x, n, thresh = 0.05, max_cycles = 5, smooth = "ma",
-  order = 5, passfreq_scale = 2, debug = FALSE)
+matching_demod(x, n, thresh = 0.05, max_cycles = 5,
+  smooth = "butterworth", order = 5, passfreq = 0.1, debug = FALSE)
 }
 \arguments{
 \item{x}{numeric. Signal to demodulate}
@@ -21,7 +21,7 @@ or 'butterworth' (the default)}
 
 \item{order}{moving average parameter if 'smooth' argument equals 'ma' or 'double_ma'. Defaults to 5}
 
-\item{passfreq_scale}{numeric scalar. Pass frequency used in butterworth low-pass filter. Defaults to 2 * f0}
+\item{passfreq}{numeric scalar. Pass frequency used in butterworth low-pass filter. defaults to .1}
 
 \item{debug}{Logical. Whether to print out intermediate output.}
 }

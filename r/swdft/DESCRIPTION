@@ -12,7 +12,11 @@ Suggests: testthat,
     fftwtools,
     fields,
     signal,
-    nloptr
-RoxygenNote: 6.0.1
+    nloptr,
+    knitr,
+    rmarkdown,
+    devtools
+RoxygenNote: 6.1.1
 Imports: stats,
     graphics
+VignetteBuilder: knitr
