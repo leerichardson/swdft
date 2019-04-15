@@ -130,6 +130,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth",
   maxvals <- c()
   passfreqs <- c()
   freqs <- c()
+  khats <- c()
 
   # --- Iteratively demodulate the signal until stopping criteria is reached ---
   cycle <- 0
@@ -187,6 +188,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth",
     fits[cycle, ] <- khat_demod$fitted
     freqs <- c(freqs, f0)
     passfreqs <- c(passfreqs, passfreq)
+    khats <- c(khats, khat)
 
     ## Optionally plot the current fit and SWDFT of the resids
     if (debug == TRUE) {
@@ -201,8 +203,9 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth",
   ## Return an S3 object of class 'swdft_matching_demod'
   return_rows <- !(apply(X=demods$y, MARGIN=1, FUN=function(x) all(is.na(x))))
   swdft_matching_demod_obj <- new_swdft_matching_demod(x, n, fitted, thresh, max_cycles, smooth,
-                                                       order, passfreqs, maxvals, freqs, amps, phases,
-                                                       demods, cycle, resids, fits, return_rows)
+                                                       order, passfreqs, maxvals, freqs, khats,
+                                                       amps, phases, demods, cycle, resids, fits,
+                                                       return_rows)
 
   return( swdft_matching_demod_obj )
 }
@@ -214,6 +217,7 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth",
 #' @param passfreqs pass frequency used in each iteration
 #' @param maxvals Maximum SWDFT coefficient for each iteration
 #' @param freqs Frequencies used in each iteration
+#' @param khats Integer version of frequency.
 #' @param amps Instantaneous amplitudes for each iteration
 #' @param phases Instantaneous phases for each iteration
 #' @param demods List of demodulated signal and smoothed demodulated signal for each iteration
@@ -237,12 +241,13 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth",
 #' }
 #'
 new_swdft_matching_demod <- function(x, n, fitted, thresh, max_cycles, smooth, order, passfreqs,
-                                     maxvals, freqs, amps, phases, demods, cycle, resids, fits,
-                                     return_rows) {
+                                     maxvals, freqs, khats, amps, phases, demods, cycle, resids,
+                                     fits, return_rows) {
   structure(list(coefficients=list(R=cycle, f0=freqs, inst_amp=amps[return_rows, ], inst_phase=phases[return_rows, ]),
                  fitted=fitted,
                  residuals=x-fitted,
                  data=x,
+                 khats=khats,
                  smooth=list(smooth=smooth, order=order, passfreq=passfreqs),
                  demod=list(y=demods$y[return_rows, ], y_smooth=demods$y_smooth[return_rows, ]),
                  thresh=thresh,
