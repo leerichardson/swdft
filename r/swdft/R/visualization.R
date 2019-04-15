@@ -19,6 +19,7 @@
 #' @param cex_main how large to make the title
 #' @param cex_lab how large to make the labels
 #' @param cex_axis how large to make the axis labels
+#' @param xaxis_subset
 #' @param custom_xaxis Defaults to NULL. Otherwise, used to change the x-axis
 #' @param custom_yaxis Defaults to NULL. Otherwise, used to change the y-axis
 #' @param col defauts to grayscale, can also be 'tim.colors' from fields package
@@ -35,7 +36,7 @@
 plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
                        take_log=FALSE, log_thresh=.00001, use_fields=TRUE, scale_shrink=.9,
                        zlim=NULL, xlab="Window Position", ylab="Frequency (Cycles/Window)", title="SWDFT",
-                       cex_main=1, cex_lab=1, cex_axis=1, custom_xaxis=NULL, custom_yaxis=NULL,
+                       cex_main=1, cex_lab=1, cex_axis=1, xaxis_subset=NULL, custom_xaxis=NULL, custom_yaxis=NULL,
                        col="grayscale", display=TRUE, ...) {
   a <- x$a
   n <- nrow(a)
@@ -47,12 +48,16 @@ plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
   ## Optionally take the logarithm of the coefficients
   if (take_log) { a[which(a < log_thresh)] <- log_thresh; a <- log(a) }
 
+  ## Optionally subset the window-position axis
+  if ( !(is.null(xaxis_subset)) ) { a <- a[, xaxis_subset] }
+
   ## Optionally set a custom x or y axis. If none, set as the defaults
   if ( is.null(custom_xaxis) ) {
     windows <- 0:(P-1)
   } else {
     windows <- custom_xaxis
   }
+
 
   if ( is.null(custom_yaxis) ) {
     freqs <- 0:(n-1)
