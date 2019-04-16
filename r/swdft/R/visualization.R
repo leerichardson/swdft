@@ -19,7 +19,7 @@
 #' @param cex_main how large to make the title
 #' @param cex_lab how large to make the labels
 #' @param cex_axis how large to make the axis labels
-#' @param xaxis_subset
+#' @param xaxis_subset subset of x-axis (time / window position) for plotting
 #' @param custom_xaxis Defaults to NULL. Otherwise, used to change the x-axis
 #' @param custom_yaxis Defaults to NULL. Otherwise, used to change the y-axis
 #' @param col defauts to grayscale, can also be 'tim.colors' from fields package
