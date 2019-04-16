@@ -5,8 +5,8 @@
 \title{Constructor function for class 'swdft_matching_demod'}
 \usage{
 new_swdft_matching_demod(x, n, fitted, thresh, max_cycles, smooth, order,
-  passfreqs, maxvals, freqs, amps, phases, demods, cycle, resids, fits,
-  return_rows)
+  passfreqs, maxvals, freqs, khats, amps, phases, demods, cycle, resids,
+  fits, return_rows)
 }
 \arguments{
 \item{x}{numeric. Signal to demodulate}
@@ -29,6 +29,8 @@ or 'butterworth' (the default)}
 \item{maxvals}{Maximum SWDFT coefficient for each iteration}
 
 \item{freqs}{Frequencies used in each iteration}
+
+\item{khats}{Integer version of frequency.}
 
 \item{amps}{Instantaneous amplitudes for each iteration}
 

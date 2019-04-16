@@ -4,14 +4,7 @@
 * win-builder (devel and release)
 
 ## R CMD check results 
-Locally and on Travis:
+Locally, Travis, and win-builder:
 Status: OK
 R CMD check results
 0 errors | 0 warnings | 0 notes
-
-1 note on win-builder:
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: 'Lee F. Richardson <leerichardson2013@gmail.com>'
-
-## Downstream dependencies
-First submission. 

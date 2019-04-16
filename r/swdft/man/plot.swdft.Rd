@@ -9,8 +9,8 @@
   use_fields = TRUE, scale_shrink = 0.9, zlim = NULL,
   xlab = "Window Position", ylab = "Frequency (Cycles/Window)",
   title = "SWDFT", cex_main = 1, cex_lab = 1, cex_axis = 1,
-  custom_xaxis = NULL, custom_yaxis = NULL, col = "grayscale",
-  display = TRUE, ...)
+  xaxis_subset = NULL, custom_xaxis = NULL, custom_yaxis = NULL,
+  col = "grayscale", display = TRUE, ...)
 }
 \arguments{
 \item{x}{Object of class 'swdft'. If x$a is complex-valued, it is converted to the squared
@@ -46,6 +46,8 @@ from the graphics package. The advantage of image.plot is that we get a color sc
 \item{cex_lab}{how large to make the labels}
 
 \item{cex_axis}{how large to make the axis labels}
+
+\item{xaxis_subset}{subset of x-axis (time / window position) for plotting}
 
 \item{custom_xaxis}{Defaults to NULL. Otherwise, used to change the x-axis}
 
