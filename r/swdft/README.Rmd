@@ -1,8 +1,9 @@
 ---
-  output:
+output:
   md_document:
-  variant: markdown_github
+    variant: markdown_github
 ---
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
@@ -14,8 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 # Overview
-The swdft package implements the Sliding Window Discrete Fourier Transform (SWDFT), and provides some
-statistical methods and graphical tools based on the SWDFT.
+The swdft package implements the Sliding Window Discrete Fourier Transform (SWDFT), and provides some statistical methods and graphical tools based on the SWDFT.
 
 ## Installation
 ```{r, eval=FALSE}
