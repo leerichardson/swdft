@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `swdft` package provides tools to analyze data with frequency domain characteristics that change over time. We named the package `swdft` because most functions use the Sliding Window Discrete Fourier Transform (SWDFT) as a building block. Quickly described, the SWDFT extends the discrete Fourier transform (DFT) from the frequency domain to the time-frequency domain. Whereas the DFT operates on the entire signal, the SWDFT takes a temporally ordered sequence of smaller DFTs on contiguous subsets of the signal. For example, the SWDFT of a time-series with length four windows first takes the DFT of the first four data-points, then takes the DFT of the second through fifth data-points, and so on, concluding with the DFT of the final four data-points. The SWDFT outputs a 2D complex array of coefficients, where the first dimension represents frequency, and the second dimension represents time. Scientists and engineers frequently use the SWDFT, so providing am easy-to-use implementation of the SWDFT and related functions fills a gap in the R landscape. 
+In time-series analysis, statisticians commonly partition methods into two groups: **time domain** and **frequency domain**. Time domain methods are based on the dependence between observations in time, and use tools like the autocorrelation to study temporal dependence. Frequency domain methods imagine that time-series are made up of oscillations, such as the earth's annual trip around the sun, and use the discrete Fourier transform (DFT) as a primary tool to understand these oscillations. A third group of methods, widely used across science and engineering, combines the time and frequency domains, and we call this group **time-frequency domain** methods. An important tool time-frequency domain analysis is the sliding window discrete Fourier transform (SWDFT), and the `swdft` package implements the SWDFT and related methods. Scientists and engineers frequently use the SWDFT, so providing am easy-to-use implementation of the SWDFT and related functions fills a gap in the R landscape.
 
 The functions we provide in the `swdft` package can be partitioned into three groups:
 
@@ -26,7 +26,7 @@ The functions we provide in the `swdft` package can be partitioned into three gr
 2. **Cosine regression**. Fits cosine functions to data with least squares. 
 3. **Complex demodulation**. Fits cosine functions with time-varying parameters using _complex demodulation_. 
 
-This vignette walks through the main functionality of each group. Before working through the examples, make sure the `swdft` package is loaded into memory. 
+This vignette walks through the main functionality of each group. Before you work through the examples, make sure that the `swdft` package is loaded into memory:
 
 ```{r, include=FALSE}
 if (as.character(Sys.info()[8]) == "lee") {
@@ -41,10 +41,55 @@ library(swdft)
 ```
 
 ## The SWDFT
-This section introduces the `swdft` function and `plot.swdft` method. We first introduce the data, then we show how to compute the SWDFT of this data using the `swdft` function. To conclude, we show several ways to visualize the output with the `plot.swdft` method.
+The SWDFT extends the DFT from the frequency domain to the time-frequency domain. Whereas the DFT makes a single large computation on the entire signal, the SWDFT takes a sequence of smaller DFTs on temporally ordered subsets of the signal. To be clear, this vignette refers to data as a *signal*, but you can easily substitute signal with time-series, data, input, etc. In any case, if $x$ is a length $N$ signal, then the DFT of $x$ computes $N$ complex-valued coefficients, and is defined by:
+
+\begin{eqnarray}
+  a_k &=& \sum_{j=0}^{N-1} x_j \omega_n^{-jk} \nonumber \\
+  k &=& 0, 1, \ldots, N - 1, 
+\end{eqnarray}
+
+where $\omega_N = \cos(\frac{2 \pi}{N}) + i \sin(\frac{2 \pi}{N})$. Each DFT coefficient measures the correlation between $x$ and a sine and cosine function with a particular frequency, where frequency specifies how fast the sine and cosine functions oscillate. This is why we are interested in large DFT coefficients: they indicate high correlation between our signal and a sine or cosine function with a particular frequency. A pictorial example of the DFT for a length $N = 8$ signal is given by:
+
+![](figures/dft-example.png){ width=80% }
+
+In contrast, the SWDFT of takes a sequence of smaller DFTs, and ourputs a 2D array of SWDFT complex coefficients. In the output array, the first dimension represents frequency, and the second dimension represents time, which is why it's called a **time-frequency** method. For example, the SWDFT for a length $N = 8$ signal is:
+
+![](figures/swdft.png){ width=80% }
+
+Here, the size of the smaller DFTs is known as the *window size*, so in this example, the window size is four. To see how the SWDFT works, let's walk through the computations in detail. Since our window size is four, the first step computes a length four DFT of the first four data-points:
+
+![](figures/swdft-two.png){ width=80% }
+
+The next step moves the window one position to the right, and computes the DFT of the second through fifth data-points:
+
+![](figures/swdft-three.png){ width=80% }
+
+The window position keeps sliding one position to the right until it reaches the final data-point:
+
+![](figures/swdft-four.png){ width=80% }
+
+And that's it. Formally, the SWDFT for a length $N$ signal with length $n$ windows is defined by:
+
+$$
+\begin{eqnarray}
+  a_{k, p} &=& \sum_{j=0}^{n-1} x_{p-n+1+j} \omega_{n}^{-jk} \nonumber \\
+  k &=& 0, 1, \ldots, N - 1 \nonumber \\
+  p &=& n - 1, n, \ldots, N - 1. 
+\end{eqnarray}
+$$
+In this notation, $k$ indexes the frequency, and $p$ indexes window position, where window position often represents time. In this package, the `swdft` function implements the SWDFT. For example, we can take the SWDFT of a length $N$ random Gaussian noise series with:
+
+```{r}
+N <- 100
+window_size <- 32
+x_random <- rnorm(n=N, mean=0, sd=1)
+a <- swdft::swdft(x=x_random, n=window_size)
+```
+
+However, the SWDFT is most useful for signals with frequency characteristics that change over time. For this reason, this vignette demonstrates how the package works using _local cosine signals_ as data. The next section defines a local cosine signal in details, and shows you how to generate them with the `local_signal` function. 
 
 ### Local Cosine Signals
-The sliding window DFT (SWDFT) is useful for signals frequency characteristics that change over time. Therefore, the data we use to demonstrate how the `swdft` function works should have frequency characteristics that change over time. To accomplish this, this vignette uses "local cosine signals" as data. Simply put, a local cosine signal is a cosine function multiplied by an indicator function, where the indicator function is only nonzero for a subset of the signal. Formally, a length $N$ local cosine signal is defined by:
+The sliding window DFT (SWDFT) is useful for signals frequency characteristics that change over time. Therefore, the signals we use to demonstrate how the `swdft` works should have changing frequency characteristics. To accomplish this, this vignette uses _local cosine signals_ as data. Simply described, a local cosine signal is a cosine function multiplied by an indicator function, where the indicator function is only nonzero for a subset of the signal. Formally, a length $N$ local cosine signal is defined by:
 
 $$
 \begin{eqnarray}
@@ -61,7 +106,7 @@ The parameters of a local cosine signal are:
 - $S$: Start of the local cosine signal 
 - $L$: Length of the local cosine signal 
 
-You can generate a local cosine signal with the `local_signal` function. In this example, we also add a small Gaussian noise factor:
+You can generate a local cosine signal with the `local_signal` function. In this example, we also add a small Gaussian noise factor to the local cosine signal:
 
 ```{r}
 # --- Generate a local cosine signal + Gaussian noise ---
@@ -245,11 +290,11 @@ swdft::get_max_freq(x=x) == max_freq
 ### Local Cosine Regression 
 For oscillations that only occur for a subset of a signal, such as the local cosine signal generated above, it is possble to localize the cosine regression model. To implement this, we provide the `local_cosreg` function. This function implements a fairly compicated maximum likelihood estimation procedure, and estimated the parameters of a local cosine signal (A, f, $\phi$, S, and L) defined above. You can apply local cosine regression to out local cosine signal with:
 
-```{r, cache=TRUE}
-local_cosreg_fit <- swdft::local_cosreg(x=x)
-plot(local_cosreg_fit)
-coefficients(local_cosreg_fit)
-```
+<!-- ```{r, cache=TRUE} -->
+<!-- local_cosreg_fit <- swdft::local_cosreg(x=x) -->
+<!-- plot(local_cosreg_fit) -->
+<!-- coefficients(local_cosreg_fit) -->
+<!-- ``` -->
 
 As you can see, this provides a better fit for this signal than `cosreg`. Unfortunately, this function takes awhile to run, and should only be used for small signals (e.g. 100/200 data-points). A faster approach, based on the method of _complex demodulation_, is covered in the next section. 
 
