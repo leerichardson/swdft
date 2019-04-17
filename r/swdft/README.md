@@ -17,4 +17,5 @@ install.packages("swdft")
 devtools::install_github("leerichardson/swdft/r/swdft")
 ```
 
-See the vignette for an introduction.
+See the vignette for an introduction, available
+![here](https://cran.r-project.org/web/packages/swdft/vignettes/swdft-intro.html).
