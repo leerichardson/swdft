@@ -17,7 +17,7 @@ new_swdft3d(a, x, n0, n1, n2, type)
 
 \item{n2}{window size in dimension 2}
 
-\item{type}{detaults to 'base', which is the only option}
+\item{type}{defaults to 'base', which is the only option}
 }
 \value{
 S3 object w/ the same elements as arguments to this constructor function

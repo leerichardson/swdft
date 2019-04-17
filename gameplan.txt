@@ -3,21 +3,61 @@
 
 # --- Tasks ---
 
+## General
+- Polish the README and update so that it references thesis
+
 ## R Package
+
+### TODO: Version 1.0.0
 - Submit to CRAN!
   + Get R CMD CHECK passing! (DONE)
-  + Get travis.yaml working  
-  + Re-write: DESCRIPTION file w/ new version 
-  + Update: the README.md file in the base repository to remove the SWDFT for time-series paper 
+  + Get travis.yaml working (DONE)
+  + Re-write: DESCRIPTION file w/ new version (DONE)
+  + Update: the README.md file in the base repository to remove the SWDFT for time-series paper (DONE)
   + Write: Vignette that displays the basic functionality
-- 
-- Maybe: Consolidate filter.R to helpers.R (DONE)
-- 
-- (REACH): Cosine regression: Add a "number of parameters" argument.
-- (REACH): Cosine regression: Add an option that automatically selects the largest frequency, use nloptR to find it specifically!
-- (REACH) Complex demod + matching demod: Add: Option to pass in a custom range of frequencies. To this AND to complex_demod!
-- (REACH) Add a customized Multitaper method.
-- (REACH) See if I can write the entire algorithm in c++, then only use a wrapper function for the entire method. This would allow easy integration with Python and other languages as well.
+    * Add all code to the document (DONE)
+    * Make sure devtools::check() still passes (DONE)
+    * Fill in the document w/ a first draft of writing. 
+      - Add writing to SWDFT + Viz (DONE) 
+      - Add Writing to Cosine Regression (DONE)
+      - Add writing to Demodulation (DONE)
+        + Say something about threshold in matching demodulation (DONE)
+    * Add coefficients(), fitted(), and residuals() calls to cosine regression. (DONE)
+    * Add formula's to the swdft, cosine regression, and local cosine (DONE) regression to make the exposition more clear. (DONE)
+    * Edit, Edit, Edit! (DONE)
+    * Re-send a draft to Sam (DONE)
+    * Add a brief description of the plot (DONE)
+      - In the SWDFT plot. Explain the x and y axis, and how they correspond to the mathematical definition. (DONE)
+    * Add a reference to Kass' book on the tapering / smoothing section. (DONE)
+      - Add a reference to everything on that section, and link to the PDF copy of the book online (DONE)
+    * add swdft::get_max_dft(), get_max_swdft() functions (DONE)
+    * Read through one more time (DONE)
+    * Mention what I like about the FFT: raw coefficients (DONE)
+    * Send to committee + Francesca / Taylor / Yotam / etc (DONE)
+    * Add additional paragraph intro. (DONE)
+      - Time (ARMA) / Frequency domain (DFT, Oscillations) (DONE)
+    * I use signals / time-series interchangeably (DONE)
+    * Should I move the SWDFT introduction to that subsection? Maybe put the SWDFT intro before introducing the local cosine signal? (DONE)
+    * Figure out how to add references (DONE)
+    * Read through Francesca's edits. (DONE)
+    * Make sure the win-builder WARNING is fixed! (DONE)
+    * (MAYBE) label the red / blue dots (DONE)
+    * (MAYBE) mention something about padding the SWDFT! (DONE)
+    * Read one more time (DONE)
+    * Fix: .Rmd issue on front of the Github page. (DONE)
+    * 
+  + Update the version number to 1.0.1 when finished! And also TAG the Github repository.
+
+### TODO: Version 1.1.0
+- Change the default visualization to "fraction" 
+- Handle the case where a$a is passed.
+- add examples to documentation for the main functions. 
+- Cosine regression: Add a "number of parameters" argument.
+- Cosine regression: Add an option that automatically selects the largest frequency, use nloptR to find it specifically!
+- Complex demod + matching demod: Add: Option to pass in a custom range of frequencies. To this AND to complex_demod!
+  + Also, a custom range of pass-frequencies / moving average orders!
+- See if I can write the entire algorithm in c++, then only use a wrapper function for the entire method. This would allow easy integration with Python and other languages as well.
+- Add a customized Multitaper method.
 
 ## Python Package
 - Read, understand Python Packages and Modules
@@ -27,7 +67,5 @@
 - Read, understand virtual environments
 
 ## **C++ Package**
-- Figure out how to put the "swdft" function entirely in C++
+- Figure out how to put the "swdft" function entirely in C++, only wrappers.
 
-## General
-- Polish the README and update so that it references the new paper.

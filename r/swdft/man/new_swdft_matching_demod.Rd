@@ -32,9 +32,9 @@ or 'butterworth' (the default)}
 
 \item{khats}{Integer version of frequency.}
 
-\item{amps}{Instantaneous amplitudes for each iteration}
+\item{amps}{Instantaneous amplitude for each iteration}
 
-\item{phases}{Instantaneous phases for each iteration}
+\item{phases}{Instantaneous phase for each iteration}
 
 \item{demods}{List of demodulated signal and smoothed demodulated signal for each iteration}
 
@@ -44,12 +44,12 @@ or 'butterworth' (the default)}
 
 \item{fits}{Fitted values for each iteration}
 
-\item{return_rows}{Logival vector indicating which iterations occured. Used for subsetting.}
+\item{return_rows}{Logical vector indicating which iterations occurred. Used for subsetting.}
 }
 \value{
 list with the following elements
 \itemize{
-  \item coefficients. coefficients from the R local signals with time-varying ampltidue and phase model.
+  \item coefficients. coefficients from the R local signals with time-varying amplitude and phase model.
   \item fitted. fitted values of cosine regression model
   \item residuals. residuals of cosine regression model
   \item data. original signal used to fit cosine regression

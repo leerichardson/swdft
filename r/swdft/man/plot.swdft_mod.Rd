@@ -11,7 +11,7 @@
 
 \item{y}{not used, but required by plot generic function}
 
-\item{...}{optionsal arguments to match the plot generic function}
+\item{...}{optional arguments to match the plot generic function}
 }
 \description{
 Plot method for swdft_mod object

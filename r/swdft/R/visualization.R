@@ -22,9 +22,9 @@
 #' @param xaxis_subset subset of x-axis (time / window position) for plotting
 #' @param custom_xaxis Defaults to NULL. Otherwise, used to change the x-axis
 #' @param custom_yaxis Defaults to NULL. Otherwise, used to change the y-axis
-#' @param col defauts to grayscale, can also be 'tim.colors' from fields package
+#' @param col defaults to grayscale, can also be 'tim.colors' from fields package
 #' @param display logical. Defaults to TRUE, only used for testing purposes, so it should always be TRUE.
-#' @param ... optionsal arguments to match the plot generic function
+#' @param ... optional arguments to match the plot generic function
 #'
 #' @import graphics
 #' @importFrom grDevices grey
@@ -126,7 +126,7 @@ plot.swdft <- function(x, freq_type="cycles", fs=NULL, hertz_range=NULL,
 #'
 #' @param x A swdft_cosreg object
 #' @param y not used, but required by plot generic function
-#' @param ... optionsal arguments to match the plot generic function
+#' @param ... optional arguments to match the plot generic function
 #'
 #' @export
 #'

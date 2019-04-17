@@ -15,8 +15,9 @@
 #'
 #' @return An S3 'swdft_demod' object. See ?new_swdft_matching_demod for details.
 #'
-#' @references Chapter 7 of 'Fourier Analysis of Time-Series' by Peter Bloomfield
-#' The following blog-post for the idea of a butterworth filter: #' https://dankelley.github.io/r/2014/02/17/demodulation.html
+#' @references Chapter 7 of 'Fourier Analysis of Time-Series' by Peter Bloomfield and this
+#' blog post: https://dankelley.github.io/r/2014/02/17/demodulation.html for the idea of using
+#' a butterworth filter.
 #'
 complex_demod <- function(x, f0, smooth="butterworth", order=5, passfreq=.1, match_swdft=FALSE, window_size=NULL) {
   N <- length(x)
@@ -218,19 +219,19 @@ matching_demod <- function(x, n, thresh=.05, max_cycles=5, smooth="butterworth",
 #' @param maxvals Maximum SWDFT coefficient for each iteration
 #' @param freqs Frequencies used in each iteration
 #' @param khats Integer version of frequency.
-#' @param amps Instantaneous amplitudes for each iteration
-#' @param phases Instantaneous phases for each iteration
+#' @param amps Instantaneous amplitude for each iteration
+#' @param phases Instantaneous phase for each iteration
 #' @param demods List of demodulated signal and smoothed demodulated signal for each iteration
 #' @param cycle Number of cycles used
 #' @param resids Residuals for each iteration
 #' @param fits Fitted values for each iteration
-#' @param return_rows Logival vector indicating which iterations occured. Used for subsetting.
+#' @param return_rows Logical vector indicating which iterations occurred. Used for subsetting.
 #'
 #' @export
 #'
 #' @return list with the following elements
 #' \itemize{
-#'   \item coefficients. coefficients from the R local signals with time-varying ampltidue and phase model.
+#'   \item coefficients. coefficients from the R local signals with time-varying amplitude and phase model.
 #'   \item fitted. fitted values of cosine regression model
 #'   \item residuals. residuals of cosine regression model
 #'   \item data. original signal used to fit cosine regression

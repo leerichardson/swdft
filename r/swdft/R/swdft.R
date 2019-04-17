@@ -12,7 +12,7 @@
 #' @param smooth Type of smoother. Defaults to 'none', can also be 'daniell' or 'modified daniell'.
 #' If smooth is 'none', then the SWDFT returns the smoothed squared modulus coefficients, not the  complex numbers
 #' @param m width of kernel. Defaults to 2
-#' @param num_convs Number of times to convolve the kernel. Defailts to 1
+#' @param num_convs Number of times to convolve the kernel. Defaults to 1
 #'
 #' @return An S3 'swdft' object. See ?new_swdft for details.
 #'

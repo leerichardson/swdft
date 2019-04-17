@@ -32,6 +32,7 @@ An S3 'swdft_demod' object. See ?new_swdft_matching_demod for details.
 Complex Demodulation
 }
 \references{
-Chapter 7 of 'Fourier Analysis of Time-Series' by Peter Bloomfield
-The following blog-post for the idea of a butterworth filter: #' https://dankelley.github.io/r/2014/02/17/demodulation.html
+Chapter 7 of 'Fourier Analysis of Time-Series' by Peter Bloomfield and this
+blog post: https://dankelley.github.io/r/2014/02/17/demodulation.html for the idea of using
+a butterworth filter.
 }

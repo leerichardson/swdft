@@ -28,7 +28,7 @@ If smooth is 'none', then the SWDFT returns the smoothed squared modulus coeffic
 
 \item{m}{width of kernel. Defaults to 2}
 
-\item{num_convs}{Number of times to convolve the kernel. Defailts to 1}
+\item{num_convs}{Number of times to convolve the kernel. Defaults to 1}
 }
 \value{
 An S3 'swdft' object. See ?new_swdft for details.

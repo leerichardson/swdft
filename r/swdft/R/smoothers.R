@@ -1,7 +1,7 @@
 #' Smooth the SWDFT coefficients
 #'
 #' @param a real or complex-valued swdft. If real-valued, then we assume it's the squared
-#' modulues already. If it's complex valued, we convert to the squared modulus.
+#' modules already. If it's complex valued, we convert to the squared modulus.
 #' @param ktype either 'daniell' or 'modified.daniell'
 #' @param m kernel width from stats::kernel
 #' @param num_convs num_convs from stats::kernel

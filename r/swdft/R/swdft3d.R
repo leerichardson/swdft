@@ -4,7 +4,7 @@
 #' @param n0 window size in dimension 0
 #' @param n1 window size in dimension 1
 #' @param n2 window size in dimension 2
-#' @param type detaults to 'base', which is the only option
+#' @param type defaults to 'base', which is the only option
 #'
 #' @export
 #'
@@ -23,12 +23,8 @@ swdft3d <- function(x, n0, n1, n2, type="base") {
 
 #' Constructor function for class 'swdft3d'
 #'
+#' @inheritParams swdft3d
 #' @param a 4D complex-valued array of 2D SWDFT coefficients
-#' @param x 3D real or complex-valued array
-#' @param n0 window size in dimension 0
-#' @param n1 window size in dimension 1
-#' @param n2 window size in dimension 2
-#' @param type detaults to 'base', which is the only option
 #'
 #' @return S3 object w/ the same elements as arguments to this constructor function
 #'

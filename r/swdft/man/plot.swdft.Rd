@@ -53,11 +53,11 @@ from the graphics package. The advantage of image.plot is that we get a color sc
 
 \item{custom_yaxis}{Defaults to NULL. Otherwise, used to change the y-axis}
 
-\item{col}{defauts to grayscale, can also be 'tim.colors' from fields package}
+\item{col}{defaults to grayscale, can also be 'tim.colors' from fields package}
 
 \item{display}{logical. Defaults to TRUE, only used for testing purposes, so it should always be TRUE.}
 
-\item{...}{optionsal arguments to match the plot generic function}
+\item{...}{optional arguments to match the plot generic function}
 }
 \description{
 Plot method for 'swdft' object

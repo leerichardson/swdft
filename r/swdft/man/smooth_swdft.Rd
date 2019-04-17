@@ -8,7 +8,7 @@ smooth_swdft(a, ktype = "daniell", m = 2, num_convs = 1)
 }
 \arguments{
 \item{a}{real or complex-valued swdft. If real-valued, then we assume it's the squared
-modulues already. If it's complex valued, we convert to the squared modulus.}
+modules already. If it's complex valued, we convert to the squared modulus.}
 
 \item{ktype}{either 'daniell' or 'modified.daniell'}
 
